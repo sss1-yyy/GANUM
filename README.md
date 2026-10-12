@@ -89,7 +89,7 @@ npm run dev
 
 ### 작업 순서
 
-1. develop에서 feature 브랜치 생성
+1. dev에서 feat 브랜치 생성
 2. 작업 후 Pull Request 작성
 3. 팀원 1명 이상 확인 후 develop에 머지
 
