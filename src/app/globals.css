@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+/*
+ * 디자인 토큰 — Figma "창캡디 디자인" 의 색·글자·모서리 값을 그대로 옮겼습니다.
+ * 색을 직접 쓰지 말고 아래 이름(bg-primary, text-text-sub 등)으로 쓰세요.
+ */
+@theme {
+  --color-primary: #6a4cf0;
+  --color-primary-light: #8a70ff;
+  --color-sub: #efebfd;
+  --color-bg: #f6f7fb;
+  --color-surface: #ffffff;
+  --color-line: #ececf1;
+  --color-outline: #d9d9d9;
+  --color-text-strong: #000000;
+  --color-text: #414141;
+  --color-text-sub: #515151;
+  --color-text-muted: #a1a1a1;
+  --color-positive: #e5484d; /* 상승·이익 (한국식: 빨강) */
+  --color-danger: #d92d20; /* 오류 메시지 (상승/하락 색과 구분) */
+  --color-negative: #3b82f6; /* 하락·손실 (한국식: 파랑) */
+  --color-chip-gray: #eef0f3;
+  --color-coach: #9079f6;
+
+  --font-sans:
+    var(--font-pretendard), "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+
+  --shadow-card: 0 0 15px 0 rgb(0 0 0 / 0.1);
+  --shadow-ai: 0 0 15.4px 0 rgb(141 114 254 / 0.4);
+
+  --radius-card: 16px;
+  --radius-button: 16px;
+  --radius-pill: 16px;
+
+  --text-title: 22px;
+  --text-subtitle: 16px;
+  --text-caption: 12px;
+}
+
+:root {
+  --app-width: 393px;
+  --tab-bar-height: 64px;
+  --top-bar-height: 56px;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: #e9e9ef;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  letter-spacing: -0.025em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 모바일 화면 틀: PC 에서 열어도 393px 폭 안에서만 보입니다. */
+.app-frame {
+  position: relative;
+  margin: 0 auto;
+  width: 100%;
+  max-width: var(--app-width);
+  min-height: 100dvh;
+  background: var(--color-surface);
+  box-shadow: 0 0 40px rgb(0 0 0 / 0.08);
+}
+
+button {
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+/* 키보드로 이동할 때만 보이는 포커스 링 */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 가로 스크롤을 숨기는 칩 줄 */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.sheet-enter {
+  animation: sheet-up 0.22s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-enter {
+    animation: none;
+  }
+}
