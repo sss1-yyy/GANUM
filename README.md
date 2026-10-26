@@ -64,6 +64,7 @@ npm install
 cp .env.example .env.local   # Windows PowerShell: Copy-Item .env.example .env.local
 npm run dev
 ```
+**cp .env.example .env.local  : env.local 파일을 만드는 명령어입니다. .env.example.은 커밋되면 안되기 때문에 실행해야합니다. 따라서 나중에 비밀키 같은 거 올려두면 env.local.파일에 두고 실행해야함. (env.local은 커밋할 때 되지 않는 파일이긴 하지만, -f 를 사용하면서 강제로 커밋하면 안된다는 뜻.) 
 
 실행 후 http://localhost:3000 접속. 모바일 폭(393px) 전용이라 개발자도구의 모바일 보기로 확인하세요.
 
