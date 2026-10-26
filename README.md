@@ -54,76 +54,32 @@
 | 서버 데이터 | TanStack Query |
 | 패키지 매니저 | npm (Node.js 22 LTS 권장) |
 
-### 실행 방법
+## 6. 시작하기
 
-```bash
+### 실행 방법 (처음 한 번만)
+
+```powershell
 git clone [레포 주소]
 cd [폴더명]
 git switch dev
 npm install
-cp .env.example .env.local   # Windows PowerShell: Copy-Item .env.example .env.local
+Copy-Item .env.example .env.local   # macOS/Linux: cp .env.example .env.local
 npm run dev
 ```
-**cp .env.example .env.local  : env.local 파일을 만드는 명령어입니다. .env.example.은 커밋되면 안되기 때문에 실행해야합니다. 따라서 나중에 비밀키 같은 거 올려두면 env.local.파일에 두고 실행해야함. (env.local은 커밋할 때 되지 않는 파일이긴 하지만, -f 를 사용하면서 강제로 커밋하면 안된다는 뜻.) 
 
 실행 후 http://localhost:3000 접속. 모바일 폭(393px) 전용이라 개발자도구의 모바일 보기로 확인하세요.
 
-PR 올리기 전에는 `npm run check`(타입·린트·테스트·서식)를 꼭 실행하세요.
+`Copy-Item .env.example .env.local`은 견본 파일(`.env.example`)을 복사해서 내 컴퓨터용 설정 파일(`.env.local`)을 만드는 명령어예요.
 
-### 문서 안내
+- `.env.example`은 견본이라 저장소에 올라가요. 비밀값을 넣으면 안 돼요.
+- `.env.local`은 내 컴퓨터에서만 쓰는 파일이라 자동으로 올라가지 않아요. 비밀값은 여기에만 넣어요.
+- `git add -f`처럼 강제로 올리는 것은 절대 하지 마세요.
 
-| 문서 | 내용 |
-|---|---|
-| `docs/start-here.md` | 처음 시작하는 법 |
-| `docs/ownership.md` | 누가 어느 폴더/화면을 맡는지 |
-| `docs/git-workflow.md` | 브랜치·커밋·PR 규칙 |
-| `docs/conflict-avoidance.md` | 충돌을 줄이는 방법 |
-| `docs/mock-guide.md` | 목데이터 사용법 |
-| `docs/figma-api-gaps.md` | 디자인과 API 명세가 다른 부분 |
-| `AGENTS.md` | AI 코딩 도구(Claude Code, Copilot, Cursor)가 따르는 규칙 |
+## 7. 작업 순서 (매번 하는 순서)
 
-## 6. 컨벤션 규칙
+PowerShell 기준이에요. 규칙의 자세한 내용은 `docs/git-workflow.md`를 보세요.
 
-자세한 내용은 `docs/git-workflow.md`를 따릅니다.
-
-### 브랜치
-
-| 브랜치 | 용도 |
-|---|---|
-| main | 배포용. 직접 push 금지 |
-| dev | 개발 내용을 모으는 브랜치. 직접 push 금지 |
-| feat/이슈번호-영어설명 | dev에서 따서 기능 단위로 작업 (예: `feat/12-home-banner`) |
-
-`fix/`, `refactor/`, `docs/`, `chore/`도 같은 형식으로 씁니다. `feature/`는 쓰지 않습니다.
-
-### 커밋 메시지
-
-`말머리: 내용` 형태로 한국어로 작성. (예: `feat: 투자 성향 진단 화면 추가`)
-
-| 말머리 | 뜻 |
-|---|---|
-| feat | 새 기능 |
-| fix | 버그 수정 |
-| docs | 문서 수정 |
-| style | 코드 모양만 수정 (기능 변화 없음) |
-| refactor | 코드 구조 개선 |
-| test | 테스트 추가·수정 |
-| chore | 설정 등 기타 작업 |
-
-
-## 작업 순서
-
-1. 이슈를 만들고 dev에서 브랜치 생성
-2. 작업 후 `npm run check` 통과 확인
-3. dev를 base로 Pull Request 작성 (템플릿 작성)
-4. 머지 (dev→main 병합은 정해진 담당자가 진행)
-   
-
-### detail
-
-## 작업 시작부터 PR까지 (매번 하는 순서)
-
-PowerShell 기준이에요. 자세한 규칙은 `docs/git-workflow.md`를 보세요.
+전체 흐름: 이슈 만들기 → dev에서 브랜치 만들기 → 작업 → `npm run check` 통과 → 커밋 → push → dev로 PR → 팀원 Approve 후 머지
 
 **1. 최신 dev 받고 내 브랜치 만들기**
 ```powershell
@@ -159,6 +115,7 @@ git push -u origin feat/12-home-banner
 3. 템플릿 체크 항목을 채우고 `Closes #이슈번호` 작성
 4. Reviewers에서 팀원 1명 지정
 5. 자동 검사(`check`)가 초록불이고 팀원이 Approve하면 **Squash and merge**
+6. dev → main 병합은 정해진 담당자가 진행
 
 **6. 머지 후 정리**
 ```powershell
@@ -177,7 +134,96 @@ git branch -d feat/12-home-banner
 | `dev`와 충돌이 나요 | `docs/conflict-avoidance.md`를 보세요. |
 | `.env.local`이 없어요 | `Copy-Item .env.example .env.local` 을 실행하세요. |
 
-##팀원
+## 8. 컨벤션 규칙
+
+자세한 내용은 `docs/git-workflow.md`를 따릅니다. 실제 명령어는 7번 작업 순서에 있어요.
+
+### 브랜치
+
+| 브랜치 | 용도 |
+|---|---|
+| main | 배포용. 직접 push 금지 |
+| dev | 개발 내용을 모으는 브랜치. 직접 push 금지 |
+| feat/이슈번호-영어설명 | dev에서 따서 기능 단위로 작업 (예: `feat/12-home-banner`) |
+
+`fix/`, `refactor/`, `docs/`, `chore/`도 같은 형식으로 씁니다. `feature/`는 쓰지 않습니다.
+
+### 커밋 메시지
+
+`말머리: 내용` 형태로 한국어로 작성. (예: `feat: 투자 성향 진단 화면 추가`)
+
+| 말머리 | 뜻 |
+|---|---|
+| feat | 새 기능 |
+| fix | 버그 수정 |
+| docs | 문서 수정 |
+| style | 코드 모양만 수정 (기능 변화 없음) |
+| refactor | 코드 구조 개선 |
+| test | 테스트 추가·수정 |
+| chore | 설정 등 기타 작업 |
+
+## 9. 프로젝트 구조
+
+화면(`src/app`)과 기능(`src/features`)을 나눠서, 팀원이 서로 다른 폴더에서 작업하도록 만들었어요.
+
+```
+GANUM/
+├─ AGENTS.md                  # 사람·AI 공통 작업 규칙
+├─ docs/                      # 팀 규칙 문서 (6번 '문서 안내' 참고)
+├─ .github/
+│  ├─ workflows/ci.yml        # PR 자동 검사 (check)
+│  ├─ PULL_REQUEST_TEMPLATE.md
+│  └─ ISSUE_TEMPLATE/         # 기능 / 버그 / 기타 이슈 양식
+├─ .husky/                    # 커밋·푸시 전 자동 검사 (커밋 메시지, 브랜치 이름)
+├─ .env.example               # 환경변수 견본 (실제 값은 .env.local 에)
+├─ public/                    # 이미지 등 정적 파일
+└─ src/
+   ├─ app/                    # 화면(라우트). 폴더 하나 = 화면 하나
+   │  ├─ page.tsx             # 랜딩
+   │  ├─ login/
+   │  └─ (main)/              # 로그인 후 화면들
+   │     ├─ home/  diagnosis/  invest/  market/
+   │     ├─ report/  simulation/  portfolio/
+   │     └─ assets/  benefits/  mypage/  menu/  notifications/
+   ├─ features/               # 기능별 폴더 (담당자별로 나뉨)
+   │  └─ <기능>/
+   │     ├─ api.ts            # 이 기능이 부르는 API 함수
+   │     ├─ types.ts          # 요청/응답 타입
+   │     └─ mocks/routes.ts   # 이 기능의 목데이터
+   ├─ components/             # 공통 컴포넌트 (ui, layout, charts, domain)
+   ├─ shared/
+   │  ├─ api/                 # API 클라이언트 (요청, 에러, 토큰, 폴링)
+   │  ├─ lib/                 # 금액·날짜 포맷 등 공통 함수
+   │  ├─ hooks/  types/
+   ├─ mocks/                  # 목 서버 (NEXT_PUBLIC_USE_MOCK=true 일 때 동작)
+   │  └─ shared/              # 여러 기능이 같이 쓰는 목데이터
+   ├─ constants/
+   └─ styles/                 # 폰트 (Pretendard)
+```
+
+### 문서 안내
+
+| 문서 | 내용 |
+|---|---|
+| `docs/start-here.md` | 처음 시작하는 법 |
+| `docs/ownership.md` | 누가 어느 폴더/화면을 맡는지 |
+| `docs/git-workflow.md` | 브랜치·커밋·PR 규칙 |
+| `docs/conflict-avoidance.md` | 충돌을 줄이는 방법 |
+| `docs/mock-guide.md` | 목데이터 사용법 |
+| `docs/figma-api-gaps.md` | 디자인과 API 명세가 다른 부분 |
+| `AGENTS.md` | AI 코딩 도구(Claude Code, Copilot, Cursor)가 따르는 규칙 |
+
+| 폴더 | 역할 | 주의 |
+|---|---|---|
+| `src/app` | 화면 파일(`page.tsx`)만 둬요 | 화면은 담당자가 직접 작성해요 |
+| `src/features/<기능>` | 그 기능의 API 함수, 타입, 목데이터 | 다른 기능 폴더 안은 건드리지 않아요 |
+| `src/components` | 여러 화면이 같이 쓰는 컴포넌트 | 만들기 전에 팀에 먼저 알려 주세요 |
+| `src/shared/api` | API 호출 공통 틀 | 바꿀 일이 생기면 이슈로 먼저 논의해요 |
+| `src/mocks` | 백엔드 없이 화면을 볼 수 있게 하는 가짜 서버 | 값은 API 명세서 기준이에요 |
+
+누가 어느 화면을 맡는지는 `docs/ownership.md`를 보세요.
+
+## 10. 팀원
 
 | 이름 | 역할 |
 |---|---|
