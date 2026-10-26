@@ -110,22 +110,82 @@ PR 올리기 전에는 `npm run check`(타입·린트·테스트·서식)를 꼭
 | test | 테스트 추가·수정 |
 | chore | 설정 등 기타 작업 |
 
-### 작업 순서
+
+## 작업 순서
 
 1. 이슈를 만들고 dev에서 브랜치 생성
 2. 작업 후 `npm run check` 통과 확인
 3. dev를 base로 Pull Request 작성 (템플릿 작성)
 4. 머지 (dev→main 병합은 정해진 담당자가 진행)
+   
 
-## 7. 팀원
+### detail
+
+## 작업 시작부터 PR까지 (매번 하는 순서)
+
+PowerShell 기준이에요. 자세한 규칙은 `docs/git-workflow.md`를 보세요.
+
+**1. 최신 dev 받고 내 브랜치 만들기**
+```powershell
+git switch dev
+git pull
+git switch -c feat/12-home-banner
+```
+브랜치 이름은 `접두사/이슈번호-영어설명`이에요. (접두사: feat, fix, refactor, docs, chore)
+
+**2. 작업하고 확인하기**
+```powershell
+npm run dev       # 화면 확인
+npm run check     # 올리기 전 점검 (타입·린트·테스트·서식). 통과해야 해요
+```
+
+**3. 커밋하기**
+```powershell
+git status                      # 올라갈 파일 확인 (.env.local 이 보이면 안 돼요)
+git add .
+git commit -m "feat: 홈 배너 추가"
+```
+커밋 메시지는 한국어로 `말머리: 내용` 형식이에요. 형식이 틀리면 자동으로 막아요.
+
+**4. 올리기**
+```powershell
+git push -u origin feat/12-home-banner
+```
+처음 올릴 때만 `-u origin 브랜치명`이 필요하고, 이후에는 `git push`만 쓰면 돼요.
+
+**5. PR 만들기**
+1. GitHub에서 "Compare & pull request" 클릭
+2. base 브랜치를 **dev**로 확인 (main이 아니에요)
+3. 템플릿 체크 항목을 채우고 `Closes #이슈번호` 작성
+4. Reviewers에서 팀원 1명 지정
+5. 자동 검사(`check`)가 초록불이고 팀원이 Approve하면 **Squash and merge**
+
+**6. 머지 후 정리**
+```powershell
+git switch dev
+git pull
+git branch -d feat/12-home-banner
+```
+
+### 자주 막히는 상황
+
+| 상황 | 해결 |
+|---|---|
+| 커밋이 거부돼요 | 메시지가 `feat: 내용` 형식인지, `npm run check`가 통과하는지 확인하세요. |
+| push가 거부돼요 | main/dev에서는 직접 push할 수 없어요. 브랜치를 만들어서 올리세요. |
+| 브랜치 이름 오류 | `feat/12-home-banner`처럼 `접두사/숫자-영어` 형식인지 확인하세요. |
+| `dev`와 충돌이 나요 | `docs/conflict-avoidance.md`를 보세요. |
+| `.env.local`이 없어요 | `Copy-Item .env.example .env.local` 을 실행하세요. |
+
+##팀원
 
 | 이름 | 역할 |
 |---|---|
 | 남궁길 | PM |
-| 양창규 | 백엔드&챗봇 |
 | 염유민 | 백엔드&챗봇 |
-| 박상욱 | 백엔드&챗봇 |
+| 양창규 | 프론트엔드 |
+| 박상욱 | 프론트엔드 |
 | 강수연 | 프론트엔드 |
-| 김수빈 |디자인 |
+| 김수빈 | 디자인 |
 | 이재림 | 프론트엔드 |
 | 김여진 | 디자인 |
