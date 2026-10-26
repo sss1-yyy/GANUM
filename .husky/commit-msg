@@ -1,0 +1,14 @@
+#!/bin/sh
+# 커밋 메시지 형식: "feat: 한국어 설명" (접두사: feat fix refactor docs chore style test)
+msg=$(head -n 1 "$1")
+case "$msg" in
+  Merge\ *|Revert\ *|fixup!*|squash!*) exit 0 ;;
+esac
+if ! echo "$msg" | grep -Eq '^(feat|fix|refactor|docs|chore|style|test)(\([a-z0-9-]+\))?: .+'; then
+  echo ""
+  echo "커밋 메시지 형식이 맞지 않아요:  $msg"
+  echo "예)  feat: 홈 배너 추가   /   fix: 주문 수량 오류 수정"
+  echo "접두사: feat fix refactor docs chore style test  (docs/git-workflow.md 참고)"
+  echo ""
+  exit 1
+fi

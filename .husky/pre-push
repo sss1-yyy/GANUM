@@ -1,0 +1,13 @@
+#!/bin/sh
+# main/dev 직접 push 방지 + 브랜치 이름 검사 (GitHub 보호 규칙의 보조 장치)
+branch=$(git rev-parse --abbrev-ref HEAD)
+case "$branch" in
+  main|dev)
+    echo "main/dev 에는 직접 push 할 수 없어요. 브랜치를 만들어 PR 을 올려 주세요. (docs/git-workflow.md)"
+    exit 1 ;;
+esac
+if ! echo "$branch" | grep -Eq '^(feat|fix|refactor|docs|chore)/[0-9]+-[a-z0-9]+(-[a-z0-9]+)*$'; then
+  echo "브랜치 이름이 규칙과 달라요: $branch"
+  echo "예)  feat/12-home-banner   (접두사/이슈번호-영어설명)"
+  exit 1
+fi

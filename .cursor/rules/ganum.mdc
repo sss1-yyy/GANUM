@@ -1,0 +1,5 @@
+---
+description: GANUM 프론트엔드 공통 규칙
+alwaysApply: true
+---
+루트의 `AGENTS.md` 와 `docs/` 폴더의 규칙을 반드시 따르세요. 특히 폴더 경계(features 간 import 금지), API 클라이언트 사용, 금융 표시 규칙, Git 규칙을 지킵니다.
