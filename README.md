@@ -48,35 +48,56 @@
 
 | 구분 | 사용 기술 |
 |---|---|
-| 프론트엔드 | Next.js, TypeScript |
+| 프레임워크 | Next.js (App Router) |
 | 언어 | TypeScript |
-| 스타일링 | (예: Tailwind CSS) |
-| 기타 | (차트 라이브러리, 상태 관리 등) |
+| 스타일링 | Tailwind CSS |
+| 서버 데이터 | TanStack Query |
+| 패키지 매니저 | npm (Node.js 22 LTS 권장) |
 
 ### 실행 방법
 
 ```bash
 git clone [레포 주소]
 cd [폴더명]
+git switch dev
 npm install
+cp .env.example .env.local   # Windows PowerShell: Copy-Item .env.example .env.local
 npm run dev
 ```
 
-실행 후 http://localhost:3000 접속.
+실행 후 http://localhost:3000 접속. 모바일 폭(393px) 전용이라 개발자도구의 모바일 보기로 확인하세요.
+
+PR 올리기 전에는 `npm run check`(타입·린트·테스트·서식)를 꼭 실행하세요.
+
+### 문서 안내
+
+| 문서 | 내용 |
+|---|---|
+| `docs/start-here.md` | 처음 시작하는 법 |
+| `docs/ownership.md` | 누가 어느 폴더/화면을 맡는지 |
+| `docs/git-workflow.md` | 브랜치·커밋·PR 규칙 |
+| `docs/conflict-avoidance.md` | 충돌을 줄이는 방법 |
+| `docs/mock-guide.md` | 목데이터 사용법 |
+| `docs/figma-api-gaps.md` | 디자인과 API 명세가 다른 부분 |
+| `AGENTS.md` | AI 코딩 도구(Claude Code, Copilot, Cursor)가 따르는 규칙 |
 
 ## 6. 컨벤션 규칙
+
+자세한 내용은 `docs/git-workflow.md`를 따릅니다.
 
 ### 브랜치
 
 | 브랜치 | 용도 |
 |---|---|
 | main | 배포용. 직접 push 금지 |
-| dev | 개발 내용을 모으는 브랜치 |
-| feat/기능명 | develop에서 따서 기능 단위로 작업 |
+| dev | 개발 내용을 모으는 브랜치. 직접 push 금지 |
+| feat/이슈번호-영어설명 | dev에서 따서 기능 단위로 작업 (예: `feat/12-home-banner`) |
+
+`fix/`, `refactor/`, `docs/`, `chore/`도 같은 형식으로 씁니다. `feature/`는 쓰지 않습니다.
 
 ### 커밋 메시지
 
-`말머리: 내용` 형태로 작성. (예: `feat: 투자 성향 진단 화면 추가`)
+`말머리: 내용` 형태로 한국어로 작성. (예: `feat: 투자 성향 진단 화면 추가`)
 
 | 말머리 | 뜻 |
 |---|---|
@@ -85,13 +106,15 @@ npm run dev
 | docs | 문서 수정 |
 | style | 코드 모양만 수정 (기능 변화 없음) |
 | refactor | 코드 구조 개선 |
+| test | 테스트 추가·수정 |
 | chore | 설정 등 기타 작업 |
 
 ### 작업 순서
 
-1. dev에서 feat 브랜치 생성
-2. 작업 후 Pull Request 작성
-3. 팀원 1명 이상 확인 후 develop에 머지
+1. 이슈를 만들고 dev에서 브랜치 생성
+2. 작업 후 `npm run check` 통과 확인
+3. dev를 base로 Pull Request 작성 (템플릿 작성)
+4. 머지 (dev→main 병합은 정해진 담당자가 진행)
 
 ## 7. 팀원
 
