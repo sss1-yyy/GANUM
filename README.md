@@ -62,6 +62,7 @@
 git clone [레포 주소]
 cd [폴더명]
 git switch dev
+cd frontend
 npm install
 Copy-Item .env.example .env.local   # macOS/Linux: cp .env.example .env.local
 npm run dev
@@ -86,6 +87,7 @@ PowerShell 기준이에요. 규칙의 자세한 내용은 `docs/git-workflow.md`
 git switch dev
 git pull
 git switch -c feat/12-home-banner
+cd frontend      # npm 명령은 frontend 폴더 안에서 실행해요
 ```
 브랜치 이름은 `접두사/이슈번호-영어설명`이에요. (접두사: feat, fix, refactor, docs, chore)
 
@@ -164,41 +166,41 @@ git branch -d feat/12-home-banner
 
 ## 9. 프로젝트 구조
 
-화면(`src/app`)과 기능(`src/features`)을 나눠서, 팀원이 서로 다른 폴더에서 작업하도록 만들었어요.
+저장소 하나에 프론트엔드와 백엔드가 같이 있어요. 프론트 작업은 모두 `frontend/` 안에서 해요.
 
 ```
 GANUM/
+├─ frontend/                  # 웹앱 (Next.js). npm 명령은 여기서 실행
+│  ├─ package.json
+│  ├─ .env.example            # 환경변수 견본 (실제 값은 .env.local 에)
+│  ├─ public/                 # 이미지 등 정적 파일
+│  ├─ .husky/                 # 커밋·푸시 전 자동 검사 (커밋 메시지, 브랜치 이름)
+│  └─ src/
+│     ├─ app/                 # 화면(라우트). 폴더 하나 = 화면 하나
+│     │  ├─ page.tsx          # 랜딩
+│     │  ├─ login/
+│     │  └─ (main)/           # 로그인 후 화면들
+│     │     ├─ home/  diagnosis/  invest/  market/
+│     │     ├─ report/  simulation/  portfolio/
+│     │     └─ assets/  benefits/  mypage/  menu/  notifications/
+│     ├─ features/            # 기능별 폴더 (담당자별로 나뉨)
+│     │  └─ <기능>/
+│     │     ├─ api.ts         # 이 기능이 부르는 API 함수
+│     │     ├─ types.ts       # 요청/응답 타입
+│     │     └─ mocks/routes.ts  # 이 기능의 목데이터
+│     ├─ components/          # 공통 컴포넌트 (ui, layout, charts, domain)
+│     ├─ shared/
+│     │  ├─ api/              # API 클라이언트 (요청, 에러, 토큰, 폴링)
+│     │  ├─ lib/              # 금액·날짜 포맷 등 공통 함수
+│     │  └─ hooks/  types/
+│     ├─ mocks/               # 목 서버 (NEXT_PUBLIC_USE_MOCK=true 일 때 동작)
+│     │  └─ shared/           # 여러 기능이 같이 쓰는 목데이터
+│     ├─ constants/
+│     └─ styles/              # 폰트 (Pretendard)
+├─ backend/                   # 서버 (백엔드 팀이 채워요)
+├─ docs/                      # 팀 규칙 문서 (아래 '문서 안내' 참고)
 ├─ AGENTS.md                  # 사람·AI 공통 작업 규칙
-├─ docs/                      # 팀 규칙 문서 (6번 '문서 안내' 참고)
-├─ .github/
-│  ├─ workflows/ci.yml        # PR 자동 검사 (check)
-│  ├─ PULL_REQUEST_TEMPLATE.md
-│  └─ ISSUE_TEMPLATE/         # 기능 / 버그 / 기타 이슈 양식
-├─ .husky/                    # 커밋·푸시 전 자동 검사 (커밋 메시지, 브랜치 이름)
-├─ .env.example               # 환경변수 견본 (실제 값은 .env.local 에)
-├─ public/                    # 이미지 등 정적 파일
-└─ src/
-   ├─ app/                    # 화면(라우트). 폴더 하나 = 화면 하나
-   │  ├─ page.tsx             # 랜딩
-   │  ├─ login/
-   │  └─ (main)/              # 로그인 후 화면들
-   │     ├─ home/  diagnosis/  invest/  market/
-   │     ├─ report/  simulation/  portfolio/
-   │     └─ assets/  benefits/  mypage/  menu/  notifications/
-   ├─ features/               # 기능별 폴더 (담당자별로 나뉨)
-   │  └─ <기능>/
-   │     ├─ api.ts            # 이 기능이 부르는 API 함수
-   │     ├─ types.ts          # 요청/응답 타입
-   │     └─ mocks/routes.ts   # 이 기능의 목데이터
-   ├─ components/             # 공통 컴포넌트 (ui, layout, charts, domain)
-   ├─ shared/
-   │  ├─ api/                 # API 클라이언트 (요청, 에러, 토큰, 폴링)
-   │  ├─ lib/                 # 금액·날짜 포맷 등 공통 함수
-   │  ├─ hooks/  types/
-   ├─ mocks/                  # 목 서버 (NEXT_PUBLIC_USE_MOCK=true 일 때 동작)
-   │  └─ shared/              # 여러 기능이 같이 쓰는 목데이터
-   ├─ constants/
-   └─ styles/                 # 폰트 (Pretendard)
+└─ .github/                   # PR 자동 검사(CI), PR·이슈 양식
 ```
 
 ### 문서 안내
@@ -215,11 +217,12 @@ GANUM/
 
 | 폴더 | 역할 | 주의 |
 |---|---|---|
-| `src/app` | 화면 파일(`page.tsx`)만 둬요 | 화면은 담당자가 직접 작성해요 |
-| `src/features/<기능>` | 그 기능의 API 함수, 타입, 목데이터 | 다른 기능 폴더 안은 건드리지 않아요 |
-| `src/components` | 여러 화면이 같이 쓰는 컴포넌트 | 만들기 전에 팀에 먼저 알려 주세요 |
-| `src/shared/api` | API 호출 공통 틀 | 바꿀 일이 생기면 이슈로 먼저 논의해요 |
-| `src/mocks` | 백엔드 없이 화면을 볼 수 있게 하는 가짜 서버 | 값은 API 명세서 기준이에요 |
+| `frontend/src/app` | 화면 파일(`page.tsx`)만 둬요 | 화면은 담당자가 직접 작성해요 |
+| `frontend/src/features/<기능>` | 그 기능의 API 함수, 타입, 목데이터 | 다른 기능 폴더 안은 건드리지 않아요 |
+| `frontend/src/components` | 여러 화면이 같이 쓰는 컴포넌트 | 만들기 전에 팀에 먼저 알려 주세요 |
+| `frontend/src/shared/api` | API 호출 공통 틀 | 바꿀 일이 생기면 이슈로 먼저 논의해요 |
+| `frontend/src/mocks` | 백엔드 없이 화면을 볼 수 있게 하는 가짜 서버 | 값은 API 명세서 기준이에요 |
+| `backend` | 서버 코드 | 백엔드 팀 담당 |
 
 누가 어느 화면을 맡는지는 `docs/ownership.md`를 보세요.
 
