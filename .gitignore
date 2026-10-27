@@ -1,33 +1,18 @@
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-/build
-
-# env files (.env.example 만 커밋합니다)
-.env*
-!.env.example
-
-# misc
+# 운영체제 / 편집기 찌꺼기
 .DS_Store
 Thumbs.db
-*.pem
-npm-debug.log*
-*.tsbuildinfo
-next-env.d.ts
 
-# vercel
-.vercel
+# env files (.env.example 만 커밋합니다) — 어느 폴더에 있든 적용
+.env*
+!.env.example
 
 # editor (공유할 설정만 허용)
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
+
+# 어느 폴더(frontend, backend)에 있든 올리지 않는 것들
+node_modules/
+dist/
+coverage/
+*.log

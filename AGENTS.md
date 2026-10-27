@@ -1,14 +1,4 @@
-<!-- BEGIN:nextjs-agent-rules -->
-
-## This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
-
-# GANUM(가늠) 프론트엔드 — AI 작업 규칙
+# GANUM(가늠) — AI 작업 규칙
 
 이 파일은 사람과 AI 코딩 도구(Claude Code, Copilot, Cursor 등) **모두가 반드시 따르는 규칙**입니다.
 자세한 설명은 `docs/` 폴더에 있어요. 규칙이 서로 부딪히면 이 파일이 우선합니다.
@@ -17,14 +7,24 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 청년 대상 금융 코치 웹앱. **모바일 폭 393px 전용**(PC 화면 없음). Next.js(App Router) + TypeScript + Tailwind v4 + TanStack Query. 패키지 매니저는 **npm**.
 
+## 0. 저장소 구조
+
+```
+GANUM/
+  frontend/   웹앱(Next.js). 이 규칙의 대부분은 여기에 해당해요. npm 명령은 모두 이 폴더 안에서 실행
+  backend/    서버(백엔드 팀이 채움). 프론트 작업에서는 건드리지 않아요
+  docs/       팀 규칙 문서
+  .github/    CI·PR/이슈 양식
+```
+
 ## 1. 폴더 규칙 (충돌을 막는 핵심)
 
 ```
-src/app/            라우트(page.tsx)만. 화면 코드는 넣지 말고 features 의 컴포넌트를 불러와 한 줄로 렌더링
-src/features/<기능>/  기능별 코드. components/(화면) api.ts types.ts mocks/routes.ts
-src/components/     모든 기능이 같이 쓰는 UI. 지금은 비어 있어요(ui/ layout/ charts/ domain/). 필요하면 아래 규칙대로 추가
-src/shared/         API 클라이언트, 포맷 함수, 공용 타입
-src/mocks/          목 서버 핵심 + 공용 목데이터
+frontend/src/app/            라우트(page.tsx)만. 화면 코드는 넣지 말고 features 의 컴포넌트를 불러와 한 줄로 렌더링
+frontend/src/features/<기능>/  기능별 코드. components/(화면) api.ts types.ts mocks/routes.ts
+frontend/src/components/     모든 기능이 같이 쓰는 UI. 지금은 비어 있어요(ui/ layout/ charts/ domain/). 필요하면 아래 규칙대로 추가
+frontend/src/shared/         API 클라이언트, 포맷 함수, 공용 타입
+frontend/src/mocks/          목 서버 핵심 + 공용 목데이터
 ```
 
 - **내 담당 기능 폴더(`docs/ownership.md`) 밖은 수정하지 않습니다.** 필요하면 아래 "공통 부품이 필요할 때"를 따르세요.
@@ -39,7 +39,7 @@ src/mocks/          목 서버 핵심 + 공용 목데이터
 - 서버 통신은 **`@/shared/api` 의 `apiGet/apiPost/...` 만** 사용합니다. 컴포넌트에서 `fetch` 직접 호출 금지.
 - 경로·필드 이름은 API 명세서(Notion "GANUM API 명세서 v0.2") 그대로. 임의로 바꾸지 마세요. 명세에 없는 API 를 쓰면 코드에 `[명세 외]` 주석을 달고 `docs/figma-api-gaps.md` 에 적습니다.
 - 응답은 `{ data, meta? }`. 오류는 `ApiError`(`code`, `status`, `fields`).
-- 목데이터 모드(`NEXT_PUBLIC_USE_MOCK=true`)가 기본입니다. 새 API 는 **자기 기능의 `mocks/routes.ts`** 에 추가하고 `src/mocks/routes.ts` 에 한 줄 등록합니다. 자세한 방법: `docs/mock-guide.md`.
+- 목데이터 모드(`NEXT_PUBLIC_USE_MOCK=true`)가 기본입니다. 새 API 는 **자기 기능의 `mocks/routes.ts`** 에 추가하고 `frontend/src/mocks/routes.ts` 에 한 줄 등록합니다. 자세한 방법: `docs/mock-guide.md`.
 - 비동기 생성(레포트·시뮬레이션)은 202 → 상세 GET 반복 조회 → `SUCCEEDED/FAILED` 에서 중단 (`pollUntilDone` 또는 `refetchInterval`). `FAILED` 도 HTTP 200 입니다.
 - 모의 주문은 `Idempotency-Key` 헤더 필수(`createIdempotencyKey`). 같은 주문을 다시 보낼 때는 같은 키를 재사용합니다.
 - 로그인 토큰은 **메모리에만** 둡니다. `localStorage`/쿠키에 토큰·개인 금융정보를 저장하지 않습니다.
@@ -59,7 +59,7 @@ src/mocks/          목 서버 핵심 + 공용 목데이터
 - TypeScript strict. `any` 금지(불가피하면 이유 주석). `@ts-ignore` 금지.
 - 기본은 서버 컴포넌트, 상태/이벤트가 필요한 파일 맨 위에만 `"use client"`.
 - 스타일은 Tailwind + `globals.css` 의 토큰(`bg-primary`, `text-text-sub`, `rounded-card` …). **색 값(#xxxxxx)을 컴포넌트에 직접 쓰지 않습니다**(Figma 와 맞추려는 일회성 장식은 예외, 주석 필수).
-- 새 UI 를 만들기 전에 `src/components/` 에 이미 있는지 확인합니다. 공통 컴포넌트는 처음에 만들어 두지 않았으니, 필요한 사람이 자기 기능 폴더에 만들고 둘 이상이 쓰면 옮깁니다.
+- 새 UI 를 만들기 전에 `frontend/src/components/` 에 이미 있는지 확인합니다. 공통 컴포넌트는 처음에 만들어 두지 않았으니, 필요한 사람이 자기 기능 폴더에 만들고 둘 이상이 쓰면 옮깁니다.
 - 파일 이름: 컴포넌트 `PascalCase.tsx`, 그 외 `kebab-case.ts`. 화면 문구는 한국어 해요체.
 - Figma 파일은 **절대 수정하지 않습니다**(읽기만).
 

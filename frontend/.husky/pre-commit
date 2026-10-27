@@ -1,0 +1,5 @@
+# frontend 폴더 안의 파일을 커밋할 때만 검사해요 (backend 만 바뀌면 건너뜀)
+if git diff --cached --name-only | grep -q '^frontend/'; then
+  cd frontend || exit 1
+  npx lint-staged && npm run typecheck
+fi

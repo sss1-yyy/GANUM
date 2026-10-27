@@ -7,10 +7,10 @@
 ## 구조
 
 ```
-src/mocks/server.ts        요청 → 알맞은 핸들러 찾기(404 처리, 지연 150ms)
-src/mocks/routes.ts        모든 기능의 목 API 등록부  ← 새 기능은 여기에 한 줄 추가
-src/mocks/shared/          여러 기능이 같이 쓰는 데이터 (종목·모의계좌·사용자·이용권)
-src/features/<기능>/mocks/routes.ts   기능 전용 목 API
+frontend/src/mocks/server.ts        요청 → 알맞은 핸들러 찾기(404 처리, 지연 150ms)
+frontend/src/mocks/routes.ts        모든 기능의 목 API 등록부  ← 새 기능은 여기에 한 줄 추가
+frontend/src/mocks/shared/          여러 기능이 같이 쓰는 데이터 (종목·모의계좌·사용자·이용권)
+frontend/src/features/<기능>/mocks/routes.ts   기능 전용 목 API
 ```
 
 ## 새 API 의 목 만들기 (예: 알림)
@@ -26,7 +26,7 @@ export const mypageMockRoutes: MockRoute[] = [
 ```
 
 ```ts
-// src/mocks/routes.ts — 한 줄 추가
+// frontend/src/mocks/routes.ts — 한 줄 추가
 import { mypageMockRoutes } from "@/features/mypage/mocks/routes";
 export const mockRoutes = [ ...sharedRoutes, ..., ...mypageMockRoutes ];
 ```
@@ -40,7 +40,7 @@ export const mockRoutes = [ ...sharedRoutes, ..., ...mypageMockRoutes ];
 
 ## 고정된 "오늘"
 
-목 모드의 오늘은 **2026-10-25 09:00(KST)** 로 고정이에요(`src/mocks/clock.ts`). D-day 는 기기 시계가 아니라 응답의 `meta.asOf` 로 계산하세요(`referenceDate`).
+목 모드의 오늘은 **2026-10-25 09:00(KST)** 로 고정이에요(`frontend/src/mocks/clock.ts`). D-day 는 기기 시계가 아니라 응답의 `meta.asOf` 로 계산하세요(`referenceDate`).
 
 ## 규칙
 

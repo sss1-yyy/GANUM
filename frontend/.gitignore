@@ -1,0 +1,33 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+/build
+
+# env files (.env.example 만 커밋합니다)
+.env*
+!.env.example
+
+# misc
+.DS_Store
+Thumbs.db
+*.pem
+npm-debug.log*
+*.tsbuildinfo
+next-env.d.ts
+
+# vercel
+.vercel
+
+# editor (공유할 설정만 허용)
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json

@@ -8,7 +8,7 @@
 | **D**    | `features/assets` `features/benefits` `features/mypage`                  | `/assets` `/assets/savings` `/assets/stocks` `/assets/coins` · `/benefits` `/benefits/[benefitId]` · `/menu` `/mypage/*` `/notifications` |
 | **팀장** | `shared/`(API 클라이언트) `mocks/`(핵심) `app/layout.tsx` 설정 파일      | API 클라이언트·목 서버·규칙                                                                                                               |
 
-- `src/app/**/page.tsx` 는 **해당 화면 담당자**가 만집니다(한 줄짜리 파일이라 충돌이 거의 없어요).
+- `frontend/src/app/**/page.tsx` 는 **해당 화면 담당자**가 만집니다(한 줄짜리 파일이라 충돌이 거의 없어요).
 - 공통 컴포넌트(`components/`)는 **일부러 비워 뒀어요.** 필요한 사람이 **자기 기능 폴더 안에 직접 만듭니다.** 승인 절차는 없어요. 다른 기능에서도 쓰게 되면 `components/` 로 옮기는 PR 을 따로 올려 주세요(옮기기만 하는 작은 PR).
 - `shared/` 에 **버그**가 있으면 직접 고치지 말고 팀장에게 알려 주세요(또는 아주 작은 수정 PR).
 
@@ -29,5 +29,5 @@ features/<기능>/
   components/    화면 컴포넌트
   api.ts         이 기능이 쓰는 API 호출 함수 + queryKey
   types.ts       이 기능 전용 타입 (여러 기능이 쓰면 shared/types 로)
-  mocks/routes.ts  이 기능의 목 API (src/mocks/routes.ts 에 등록)
+  mocks/routes.ts  이 기능의 목 API (frontend/src/mocks/routes.ts 에 등록)
 ```
