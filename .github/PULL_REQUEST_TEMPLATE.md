@@ -12,7 +12,7 @@ Closes #
 
 - [ ] base 브랜치가 `dev` 이고, 브랜치 이름이 `feat/이슈번호-설명` 형식이에요
 - [ ] 내 담당 폴더 밖을 수정하지 않았어요 (수정했다면 아래에 이유)
-- [ ] `npm run check` 가 통과해요
+- [ ] `npm run check` 가 통과해요 (frontend 폴더에서 실행)
 - [ ] 새 API/목데이터는 `mocks/routes.ts` 에 등록했어요
 - [ ] Figma 나 API 명세와 다른 점은 `docs/figma-api-gaps.md` 에 적었어요
 - [ ] 비밀값(.env, 토큰)을 올리지 않았어요

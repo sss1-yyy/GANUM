@@ -46,9 +46,10 @@ fix: 주문 수량이 0일 때 확인 버튼이 눌리는 문제 수정
 git switch dev
 git pull origin dev
 git switch -c feat/12-home-banner     # 이슈 번호는 내 이슈 번호로
+cd frontend                           # npm 명령은 이 폴더 안에서
 npm run dev                           # 개발 서버 (http://localhost:3000)
 # ... 코드 작성 ...
-npm run check                         # 올리기 전 점검
+npm run check                         # 올리기 전 점검 (frontend 폴더에서)
 git add src/features/home
 git commit -m "feat: 홈 배너 추가"
 git push -u origin feat/12-home-banner

@@ -13,16 +13,19 @@ cd C:\src
 git clone https://github.com/<조직>/GANUM.git
 cd GANUM
 git switch dev
+cd frontend
 npm install
 Copy-Item .env.example .env.local
 npm run dev
 ```
 
+프론트 작업은 모두 `frontend` 폴더 안에서 해요. `npm` 명령은 꼭 그 폴더 안에서 실행하세요. (`backend` 폴더는 백엔드 팀이 써요.)
+
 브라우저에서 http://localhost:3000 → **화면은 아직 비어 있어요(정상).** 각자 담당 화면을 만들면서 채웁니다. 개발자도구(F12) → 모바일 보기(Ctrl+Shift+M)로 보면 편해요.
 
 ## 2. 목데이터 모드
 
-`.env.local` 의 `NEXT_PUBLIC_USE_MOCK=true` 이면 **서버 없이** `apiGet/apiPost` 가 목데이터로 응답해요. 목데이터를 쓸지(`true`) 실서버를 쓸지(`false`)는 각자 개발할 때 정하면 돼요. 실서버가 생기면 `false` 로 바꾸고 `NEXT_PUBLIC_API_BASE_URL` 만 채우면 됩니다.
+`frontend/.env.local` 의 `NEXT_PUBLIC_USE_MOCK=true` 이면 **서버 없이** `apiGet/apiPost` 가 목데이터로 응답해요. 목데이터를 쓸지(`true`) 실서버를 쓸지(`false`)는 각자 개발할 때 정하면 돼요. 실서버가 생기면 `false` 로 바꾸고 `NEXT_PUBLIC_API_BASE_URL` 만 채우면 됩니다.
 
 - 새로고침하면 목데이터 상태(주문·진단 결과 등)가 처음으로 돌아가요. 화면 이동(링크 클릭)에서는 유지돼요.
 - 연결 전 자산 화면 보기: `.env.local` 에 `NEXT_PUBLIC_MOCK_ASSETS=disconnected`

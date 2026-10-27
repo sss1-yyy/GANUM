@@ -9,7 +9,7 @@
 
 | 항목                       | 현재                                                     | 해야 할 일                                                           |
 | -------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------- |
-| GANUM 로고                 | 글자 `GANUM`                                             | 로고 파일을 `public/` 에 넣고 `components/layout/GanumLogo.tsx` 교체 |
+| GANUM 로고                 | 글자 `GANUM`                                             | 로고 파일을 `frontend/public/` 에 넣고 `components/layout/GanumLogo.tsx` 교체 |
 | 회사 로고(삼성전자, SK 등) | 글자/색 원                                               | 실제 이미지 또는 로고 API                                            |
 | 투자 캐릭터 4종            | Figma 를 보고 SVG 로 재현                                | 디자이너 원본으로 교체(`components/domain/Characters.tsx`)           |
 | "Stocks Growth" 아이콘     | 없음                                                     | 원본 필요                                                            |
