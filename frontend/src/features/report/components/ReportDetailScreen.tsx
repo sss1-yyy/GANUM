@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
-import { isApiError, POLL_INTERVAL_MS } from "@/shared/api";
+import { isApiError, POLL_INTERVAL_MS, USE_MOCK } from "@/shared/api";
 import { cn } from "@/shared/lib/cn";
 import {
   changeTone,
@@ -110,6 +110,7 @@ function ReportBody({ report }: { report: Report }) {
       <div className="flex flex-col gap-4">
         {report.summary && (
           <Card className="gap-3">
+            {USE_MOCK && <p className="text-caption text-text-sub font-medium">[예시]</p>}
             {"totalValue" in report.summary ? (
               <PaperFigures summary={report.summary} />
             ) : (
@@ -198,8 +199,16 @@ function FinancialFigures({ summary }: { summary: FinancialSummary }) {
         <Tile label="월 지출" value={manWonOrDash(summary.monthlyExpense)} />
       </div>
       {summary.monthlySurplus !== null && (
-        <div className="rounded-card bg-sub text-primary flex items-center gap-2 px-[18px] py-4 font-semibold">
-          <p className="text-caption flex-1">월 저축 여력</p>
+        <div
+          className={cn(
+            "rounded-card bg-sub flex items-center gap-2 px-[18px] py-4 font-semibold",
+            summary.monthlySurplus < 0 ? "text-danger" : "text-primary",
+          )}
+        >
+          {/* 지출이 수입보다 크면 음수. formatManWon 은 부호를 떼므로 라벨로 구분해요 */}
+          <p className="text-caption flex-1">
+            {summary.monthlySurplus < 0 ? "월 부족액" : "월 저축 여력"}
+          </p>
           <p className="text-subtitle whitespace-nowrap">
             약 {formatManWon(summary.monthlySurplus)}
           </p>
