@@ -13,11 +13,11 @@ import character from "../assets/character.svg";
 import chevronRight from "../assets/chevron-right.svg";
 import { pendingStatusLabel } from "../labels";
 import type { ReportListItem } from "../types";
-import { ReportScreenFrame } from "./ReportScreenFrame";
+import { ScreenFrame } from "@/components/layout/ScreenFrame";
 
 export function ReportListScreen() {
   return (
-    <ReportScreenFrame className="gap-4">
+    <ScreenFrame className="gap-4">
       <h1 className="text-title text-text-strong font-semibold">내 레포트</h1>
       <NewReportHero />
       <PreviousReports />
@@ -26,7 +26,7 @@ export function ReportListScreen() {
         <br />
         레포트는 참고용이며 특정 상품 가입을 권유하지 않아요.
       </p>
-    </ReportScreenFrame>
+    </ScreenFrame>
   );
 }
 

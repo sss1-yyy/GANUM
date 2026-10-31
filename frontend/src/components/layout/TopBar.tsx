@@ -3,12 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import chevronLeft from "../assets/chevron-left.svg";
-import ganumLogo from "../assets/ganum-logo.png";
-import notification from "../assets/notification.png";
+import chevronLeft from "./assets/chevron-left.svg";
+import ganumLogo from "./assets/ganum-logo.png";
+import notification from "./assets/notification.png";
 
-/** Figma 상단 바(뒤로가기 · 로고 · 알림). 다른 기능에서도 쓰게 되면 components/layout 으로 옮겨요. */
-export function ReportTopBar() {
+/** Figma 상단 바(뒤로가기 · 로고 · 알림) */
+export function TopBar() {
   const router = useRouter();
   return (
     <header className="relative flex h-(--top-bar-height) items-center justify-between px-8">
