@@ -10,13 +10,16 @@ import type { Instrument, InstrumentType } from "@/shared/types";
 import checkOn from "../assets/check-on.svg";
 import search from "../assets/search.svg";
 import { BottomSheet, Chip, SheetCta } from "./BottomSheet";
+import { InstrumentLogo } from "./InstrumentLogo";
 
-type TypeFilter = "ALL" | InstrumentType;
+/** OVERSEAS(해외)는 API 종류에 없어서 칩만 두고 "준비 중"을 보여줘요 (docs/figma-api-gaps.md) */
+type TypeFilter = "ALL" | InstrumentType | "OVERSEAS";
 
 const TYPE_CHIPS: Array<{ value: TypeFilter; label: string }> = [
   { value: "ALL", label: "전체" },
   { value: "STOCK", label: "국내 주식" },
   { value: "ETF", label: "ETF" },
+  { value: "OVERSEAS", label: "해외" },
 ];
 
 /**
@@ -54,12 +57,13 @@ export function InstrumentSheet({
 
   const params: InstrumentsQuery = {
     ...(deferredKeyword ? { query: deferredKeyword.slice(0, 50) } : {}),
-    ...(type !== "ALL" ? { type } : {}),
+    ...(type === "STOCK" || type === "ETF" ? { type } : {}),
     limit: 20,
   };
   const list = useQuery({
     queryKey: sharedKeys.instruments(params),
     queryFn: async () => (await getInstruments(params)).data.items,
+    enabled: type !== "OVERSEAS",
   });
 
   const multiple = max > 1;
@@ -104,7 +108,8 @@ export function InstrumentSheet({
       </div>
 
       <ul className="flex flex-col gap-4">
-        {list.isPending && <SheetMessage>불러오는 중…</SheetMessage>}
+        {type === "OVERSEAS" && <SheetMessage>해외 종목은 아직 준비 중이에요.</SheetMessage>}
+        {type !== "OVERSEAS" && list.isPending && <SheetMessage>불러오는 중…</SheetMessage>}
         {list.isError && <SheetMessage danger>종목을 불러오지 못했어요.</SheetMessage>}
         {list.data?.length === 0 && <SheetMessage>찾는 종목이 없어요.</SheetMessage>}
         {list.data?.map((instrument) => {
@@ -122,7 +127,7 @@ export function InstrumentSheet({
                   on ? "border-primary" : "border-transparent",
                 )}
               >
-                <InstrumentAvatar name={instrument.name} />
+                <InstrumentLogo symbol={instrument.symbol} name={instrument.name} />
                 <span className="flex min-w-0 flex-1 flex-col gap-1.5">
                   <span className="text-text-strong truncate text-[14px] font-semibold">
                     {instrument.name}
@@ -146,18 +151,6 @@ export function InstrumentSheet({
         {multiple ? `${selected.length}개 선택 완료` : "선택 완료"}
       </SheetCta>
     </BottomSheet>
-  );
-}
-
-/** API 에 종목 로고가 없어서 이름 첫 글자로 대신해요 (docs/figma-api-gaps.md) */
-function InstrumentAvatar({ name }: { name: string }) {
-  return (
-    <span
-      aria-hidden
-      className="bg-sub text-primary flex size-10 shrink-0 items-center justify-center rounded-full text-[14px] font-bold"
-    >
-      {name.slice(0, 1)}
-    </span>
   );
 }
 

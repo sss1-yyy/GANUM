@@ -7,6 +7,7 @@ import {
   formatDotDate,
   formatKRW,
   formatManWon,
+  formatMonthDay,
   formatSignedPercent,
 } from "@/shared/lib/format";
 import type { SimulationDraft } from "../draft";
@@ -14,7 +15,7 @@ import { maxDrawdownPercent } from "../drawdown";
 import { QUESTION_TITLE, SCENARIO_TITLES } from "../labels";
 import { compareSummary } from "../summary";
 import type { Scenario, Simulation, SimulationKind } from "../types";
-import { CtaButton, Disclaimer, ExampleNotice } from "./SimulationParts";
+import { CtaButton, Disclaimer } from "./SimulationParts";
 
 const TONE_CLASS = {
   up: "text-positive",
@@ -51,9 +52,6 @@ export function SimulationResultView({
     <>
       <div className="flex h-11 items-center">
         <h1 className="text-title text-text-strong flex-1 font-semibold">시뮬레이션 결과</h1>
-        <span className="text-caption text-text-sub font-medium">
-          {index + 1}/{simulations.length}
-        </span>
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -65,7 +63,6 @@ export function SimulationResultView({
           {assumptionLine(simulation, draft, result?.scenarios[0])}
         </p>
       </div>
-      <ExampleNotice />
 
       {result && result.scenarios.length >= 2 ? (
         <>
@@ -76,31 +73,21 @@ export function SimulationResultView({
             focus={result.scenarios[0]}
             base={result.scenarios[1]}
             subtitles={
-              // 적립식은 두 시나리오 이름이 제목과 같아서 넣은 방식을 대신 보여줘요
+              // Figma 소제목 형식 (Q1 은 서버 label "8월 15일에 매수" 를 그대로 써요)
               kind === "RECURRING"
                 ? {
                     focus: `매달 ${formatManWon(simulation.input.amount)}`,
                     base: `첫 달에 ${formatManWon(result.scenarios[1].investedAmount)}`,
                   }
-                : { focus: result.scenarios[0].label, base: result.scenarios[1].label }
+                : kind === "DIVERSIFICATION"
+                  ? {
+                      focus: `${simulation.input.instrumentIds.length}종목 균등`,
+                      base: `${draft.DIVERSIFICATION.instruments[0]?.name ?? ""}만`,
+                    }
+                  : { focus: result.scenarios[0].label, base: result.scenarios[1].label }
             }
           />
-          <section className="flex flex-col gap-2.5">
-            <h2 className="text-subtitle text-text-strong font-semibold">어떻게 계산했나요?</h2>
-            <ul className="rounded-card bg-surface shadow-card flex flex-col gap-2.5 px-[18px] py-5">
-              {result.assumptions.map((text) => (
-                <li
-                  key={text}
-                  className="text-caption text-text-strong flex gap-2 leading-[18px] font-medium"
-                >
-                  <span aria-hidden className="text-primary">
-                    ·
-                  </span>
-                  {text}
-                </li>
-              ))}
-            </ul>
-          </section>
+          <ReasonSection simulation={simulation} draft={draft} />
           <div className="rounded-card bg-sub flex flex-col gap-1.5 px-[18px] py-5">
             <p className="text-caption text-primary font-semibold">한 줄 정리</p>
             <p className="text-text-strong text-[14px] leading-6 font-semibold">
@@ -151,10 +138,51 @@ function assumptionLine(
     case "TIMING":
       return `${draft.TIMING.instrument?.name ?? ""} · ${start}에 ${formatKRW(input.amount)}을 투자했다고 가정했어요.`;
     case "DIVERSIFICATION":
-      return `${start}부터 ${draft.DIVERSIFICATION.instruments.map((item) => item.name).join(" · ")}에 같은 돈을 나눠, 총 ${formatKRW(input.amount)}을 투자했다고 가정했어요.`;
+      return `${start}부터 ${draft.DIVERSIFICATION.instruments.map((item) => item.name).join(" · ")}에 같은 돈씩, 총 ${formatKRW(input.amount)}을 투자했다고 가정했어요.`;
     case "RECURRING":
-      return `${draft.RECURRING.instrument?.name ?? ""} · ${start}부터 매달 ${formatKRW(input.amount)}씩${focus ? `, 총 ${formatKRW(focus.investedAmount)}을` : ""} 투자했다고 가정했어요.`;
+      // Figma: "KODEX 200 · 2025.11부터 매달 100,000원씩 12개월, 총 1,200,000원을 …"
+      return `${draft.RECURRING.instrument?.name ?? ""} · ${start.slice(0, 7)}부터 매달 ${formatKRW(input.amount)}씩${focus ? ` ${Math.round(focus.investedAmount / input.amount)}개월, 총 ${formatKRW(focus.investedAmount)}을` : ""} 투자했다고 가정했어요.`;
   }
+}
+
+/**
+ * "왜 이런 결과가 나왔나요?" — 뉴스·경제 지표 API 가 없어서 Figma 처럼 [예시] 자리로 보여줘요.
+ * (docs/figma-api-gaps.md)
+ */
+function ReasonSection({ simulation, draft }: { simulation: Simulation; draft: SimulationDraft }) {
+  const { input } = simulation;
+  const name =
+    input.kind === "TIMING"
+      ? draft.TIMING.instrument?.name
+      : input.kind === "DIVERSIFICATION"
+        ? draft.DIVERSIFICATION.instruments[0]?.name
+        : draft.RECURRING.instrument?.name;
+  const rows = [
+    {
+      tag: "뉴스",
+      title: `[예시] ${name ?? "종목"} 관련 뉴스 제목`,
+      period: `${formatMonthDay(input.startDate)} ~ ${formatMonthDay(input.endDate)}`,
+    },
+    { tag: "경제", title: "[예시] 금리·환율 등 경제 지표 변화", period: "같은 기간" },
+  ];
+  return (
+    <section className="flex flex-col gap-4">
+      <h2 className="text-subtitle text-text-strong font-semibold">왜 이런 결과가 나왔나요?</h2>
+      <ul className="rounded-card bg-surface shadow-card flex flex-col gap-2.5 px-[18px] py-5">
+        {rows.map((row) => (
+          <li key={row.tag} className="flex items-start gap-2.5">
+            <span className="bg-bg text-caption text-text-sub shrink-0 rounded-xl px-3.5 py-1 font-semibold">
+              {row.tag}
+            </span>
+            <span className="text-caption flex min-w-0 flex-1 flex-col gap-1.5 font-medium">
+              <span className="text-text-strong leading-[18px]">{row.title}</span>
+              <span className="text-text-sub">{row.period}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
 function CompareCard({

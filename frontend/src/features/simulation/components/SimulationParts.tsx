@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { USE_MOCK } from "@/shared/api";
 import { cn } from "@/shared/lib/cn";
 
 /** 화면 맨 아래 큰 버튼 (primary: 보라, secondary: 연보라) */
@@ -45,13 +44,12 @@ export function Disclaimer() {
   );
 }
 
-/** 목데이터일 때만 "[예시]" 안내. 실제 API 응답에는 붙이지 않아요 */
+/** Figma 안내 배지. 결과의 뉴스·경제 칸은 API 가 없어 항상 예시라서 늘 보여줘요 */
 export function ExampleNotice() {
-  if (!USE_MOCK) return null;
   return (
     // Figma 안내 배지 색(노랑 계열)이 토큰에 없어서 그대로 써요
     <p className="self-start rounded-xl bg-[#fff4cc] px-3.5 py-1 text-[10.5px] font-semibold text-[#8a6a00]">
-      [예시] 숫자는 모두 예시예요
+      숫자와 뉴스 자리는 모두 예시예요
     </p>
   );
 }

@@ -40,8 +40,9 @@ export function compareSummary(
     return [first, null];
   }
 
-  const first = `${focusWins ? "매달 나눠 넣었다면" : "한 번에 넣었다면"} ${amount} 더 벌었어요.`;
-  if (winnerDrop < loserDrop) return [first, "하지만 더 크게 흔들렸어요."];
-  if (winnerDrop > loserDrop) return [first, "흔들림도 더 적었어요."];
-  return [first, null];
+  // Figma: "한 번에 넣었다면 66,000원 더," / "하지만 더 크게 흔들렸어요."
+  const lead = `${focusWins ? "매달 나눠 넣었다면" : "한 번에 넣었다면"} ${amount} 더`;
+  if (winnerDrop < loserDrop) return [`${lead},`, "하지만 더 크게 흔들렸어요."];
+  if (winnerDrop > loserDrop) return [`${lead},`, "흔들림도 더 적었어요."];
+  return [`${lead} 벌었어요.`, null];
 }

@@ -37,7 +37,7 @@ describe("compareSummary", () => {
   it("Q3: 한 번에 넣은 쪽이 더 벌었지만 더 크게 흔들림 (Figma 예시)", () => {
     expect(
       compareSummary("RECURRING", scenario(968_000, 1_302_000), scenario(902_000, 1_368_000)),
-    ).toEqual(["한 번에 넣었다면 66,000원 더 벌었어요.", "하지만 더 크게 흔들렸어요."]);
+    ).toEqual(["한 번에 넣었다면 66,000원 더,", "하지만 더 크게 흔들렸어요."]);
   });
 
   it("수익이 같으면 한 줄만", () => {
