@@ -79,6 +79,9 @@ export function SimulationScreen() {
   const pollError = polls.find((poll) => poll.isError && !poll.isFetching)?.error ?? null;
   const error = create.error ?? pollError;
   const running = Boolean(submitted) && !finished && !error;
+  // 같은 조건으로 실행했다가 오류로 멈췄고, 이미 만든 시뮬레이션이 있으면 이어서 해요
+  const canResume =
+    Boolean(error) && submitted === draft && KIND_ORDER.some((kind) => jobIds[kind]);
 
   const run = () => {
     // 입력을 바꿨으면 처음부터, 그대로면 이어서 (만든 ID 는 다시 만들지 않아요)
@@ -120,6 +123,7 @@ export function SimulationScreen() {
           isFreePlan={usage.data?.plan === "FREE"}
           running={running}
           error={error ? errorMessage(error) : null}
+          canResume={canResume}
           onRun={run}
         />
       )}

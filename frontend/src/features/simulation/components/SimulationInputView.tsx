@@ -44,6 +44,7 @@ export function SimulationInputView({
   isFreePlan,
   running,
   error,
+  canResume,
   onRun,
 }: {
   draft: SimulationDraft;
@@ -54,6 +55,8 @@ export function SimulationInputView({
   isFreePlan: boolean;
   running: boolean;
   error: string | null;
+  /** 오류로 멈춘 실행을 같은 조건으로 이어서 할 수 있는지 (새 실행이 아니라 재조회·남은 생성) */
+  canResume: boolean;
   onRun: () => void;
 }) {
   const [sheet, setSheet] = useState<SheetId | null>(null);
@@ -184,12 +187,15 @@ export function SimulationInputView({
             {error}
           </p>
         )}
-        <CtaButton disabled={!allDone || outOfRuns || running} onClick={onRun}>
+        {/* 이어서 하기는 이미 이용권을 쓴 실행이라 남은 횟수가 0이어도 누를 수 있어요 */}
+        <CtaButton disabled={!allDone || (outOfRuns && !canResume) || running} onClick={onRun}>
           {running
             ? "시뮬레이션을 돌리는 중…"
-            : outOfRuns
-              ? "이용권을 모두 썼어요"
-              : "시뮬레이션 돌리기"}
+            : canResume
+              ? "다시 시도하기"
+              : outOfRuns
+                ? "이용권을 모두 썼어요"
+                : "시뮬레이션 돌리기"}
         </CtaButton>
       </div>
 
