@@ -12,6 +12,7 @@ import {
 import type { SimulationDraft } from "../draft";
 import { maxDrawdownPercent } from "../drawdown";
 import { QUESTION_TITLE, SCENARIO_TITLES } from "../labels";
+import { compareSummary } from "../summary";
 import type { Scenario, Simulation, SimulationKind } from "../types";
 import { CtaButton, Disclaimer, ExampleNotice } from "./SimulationParts";
 
@@ -171,7 +172,7 @@ function CompareCard({
   const [showHelp, setShowHelp] = useState(false);
   const focusDrop = maxDrawdownPercent(focus.series);
   const baseDrop = maxDrawdownPercent(base.series);
-  const diff = focus.profitLoss - base.profitLoss;
+  const summary = compareSummary(kind, focus, base);
 
   return (
     <div className="rounded-card bg-surface shadow-card flex flex-col gap-3.5 px-[18px] py-5">
@@ -242,13 +243,11 @@ function CompareCard({
       </table>
 
       <p className="text-text-strong text-[14px] leading-5 font-semibold">
-        {diff === 0
-          ? "두 경우의 수익이 같았어요."
-          : `${diff > 0 ? titles.focusShort : titles.baseShort} 쪽 수익이 ${formatKRW(Math.abs(diff))} 더 컸어요.`}
-        {focusDrop < 0 && (
+        {summary[0]}
+        {summary[1] && (
           <>
             <br />
-            {titles.focusShort} 쪽은 중간에 {formatSignedPercent(focusDrop)}까지 내려갔어요.
+            {summary[1]}
           </>
         )}
       </p>

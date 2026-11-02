@@ -10,10 +10,10 @@ export const QUESTION_TITLE: Record<SimulationKind, string> = {
 };
 
 /**
- * Figma 에는 Q1·Q2 금액 입력이 없고 결과 예시가 20만 원 · 40만 원이라 그 값으로 고정해요.
+ * Q1·Q2 는 금액을 입력받지 않고 기준 금액으로 계산해요 (팀 결정: 둘 다 100만 원, Q3 만 직접 입력).
  * (docs/figma-api-gaps.md)
  */
-export const FIXED_AMOUNT = { TIMING: 200_000, DIVERSIFICATION: 400_000 } as const;
+export const FIXED_AMOUNT = { TIMING: 1_000_000, DIVERSIFICATION: 1_000_000 } as const;
 
 /** Q1 비교 시점: 고른 날보다 한 달 늦게 샀을 때와 비교해요 (Figma "내 실제" 매수일을 알 수 없어서) */
 export const TIMING_COMPARE_MONTHS = 1;

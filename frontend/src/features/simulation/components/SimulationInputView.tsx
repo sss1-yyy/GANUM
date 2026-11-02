@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
 import { cn } from "@/shared/lib/cn";
-import { formatDotDate, formatKRW } from "@/shared/lib/format";
+import { formatDotDate, formatKRW, formatManWon } from "@/shared/lib/format";
 import chevronDown from "../assets/chevron-down.svg";
 import chevronUp from "../assets/chevron-up.svg";
 import dot from "../assets/dot.svg";
@@ -14,7 +14,7 @@ import {
   latestStartDate,
   type SimulationDraft,
 } from "../draft";
-import { DIVERSIFICATION_MAX, KIND_ORDER, QUESTION_TITLE } from "../labels";
+import { DIVERSIFICATION_MAX, FIXED_AMOUNT, KIND_ORDER, QUESTION_TITLE } from "../labels";
 import type { SimulationKind } from "../types";
 import { AmountSheet } from "./AmountSheet";
 import { DateSheet } from "./DateSheet";
@@ -31,8 +31,8 @@ type SheetId =
   | "RECURRING_INSTRUMENT";
 
 const HINT: Record<SimulationKind, string> = {
-  TIMING: "종목과 투자 시점을 골라 주세요.",
-  DIVERSIFICATION: "시작일과 종목 2~3개를 골라 주세요.",
+  TIMING: `${formatManWon(FIXED_AMOUNT.TIMING)} 기준 · 종목과 투자 시점을 골라 주세요.`,
+  DIVERSIFICATION: `${formatManWon(FIXED_AMOUNT.DIVERSIFICATION)} 기준 · 시작일과 종목 2~3개를 골라 주세요.`,
   RECURRING: "금액, 시작일, 대상을 모두 입력해 주세요.",
 };
 
@@ -87,7 +87,7 @@ export function SimulationInputView({
             </span>
           )}
         </div>
-        <h1 className="text-title text-text-strong font-semibold">다른 선택을 해봤다면</h1>
+        <h1 className="text-title text-text-strong font-semibold">다른 선택을 해봤다면?</h1>
         <p className="text-caption text-text-sub leading-[18px] font-medium">
           같은 돈을 다르게 투자했다면 결과가 어떻게 달랐을지 비교해 봐요.
         </p>
