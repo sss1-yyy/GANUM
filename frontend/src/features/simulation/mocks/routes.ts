@@ -214,8 +214,8 @@ export const simulationMockRoutes: MockRoute[] = [
       if ("errors" in checked) {
         return fail(422, "INVALID_SIMULATION", "입력값을 확인해 주세요.", checked.errors);
       }
-      // ⚠ Figma 의 "무료 3회"는 질문 3개를 한 번에 돌리는 것을 1회로 센 것처럼 보여요.
-      //    그래서 목에서는 3개 중 첫 번째(TIMING) 요청에서만 토큰을 차감합니다. (차감 기준은 팀 확정 필요)
+      // 팀 결정: 질문 3개(Q1·Q2·Q3)를 한 번 돌리는 것을 이용권 1회로 세요.
+      //    그래서 목에서는 3개 중 첫 번째(TIMING) 요청에서만 토큰을 차감합니다.
       if (checked.kind === "TIMING" && !chargeTokens("SIMULATION")) {
         return fail(409, "TOKEN_INSUFFICIENT", "이용권이 부족해요.");
       }
