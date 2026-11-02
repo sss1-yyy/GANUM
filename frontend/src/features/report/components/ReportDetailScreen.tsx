@@ -28,7 +28,7 @@ import type {
   ReportAllocation,
   ReportSource,
 } from "../types";
-import { ReportScreenFrame } from "./ReportScreenFrame";
+import { ScreenFrame } from "@/components/layout/ScreenFrame";
 
 export function ReportDetailScreen({ reportId }: { reportId: string }) {
   const query = useQuery({
@@ -43,7 +43,7 @@ export function ReportDetailScreen({ reportId }: { reportId: string }) {
   const report = query.data;
 
   return (
-    <ReportScreenFrame className="gap-2.5">
+    <ScreenFrame className="gap-2.5">
       <h1 className="text-title text-text-strong font-semibold">내 레포트</h1>
       {query.isError ? (
         <StatusMessage
@@ -64,7 +64,7 @@ export function ReportDetailScreen({ reportId }: { reportId: string }) {
       ) : (
         <ReportBody report={report} />
       )}
-    </ReportScreenFrame>
+    </ScreenFrame>
   );
 }
 
