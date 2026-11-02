@@ -43,13 +43,3 @@ export function Disclaimer() {
     </p>
   );
 }
-
-/** Figma 안내 배지. 결과의 뉴스·경제 칸은 API 가 없어 항상 예시라서 늘 보여줘요 */
-export function ExampleNotice() {
-  return (
-    // Figma 안내 배지 색(노랑 계열)이 토큰에 없어서 그대로 써요
-    <p className="self-start rounded-xl bg-[#fff4cc] px-3.5 py-1 text-[10.5px] font-semibold text-[#8a6a00]">
-      숫자와 뉴스 자리는 모두 예시예요
-    </p>
-  );
-}

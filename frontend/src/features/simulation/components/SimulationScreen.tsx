@@ -34,6 +34,7 @@ export function SimulationScreen() {
   const [draft, setDraft] = useState<SimulationDraft>(EMPTY_DRAFT);
   const [submitted, setSubmitted] = useState<SimulationDraft | null>(null);
   const [jobIds, setJobIds] = useState<JobIds>({});
+  const [resultIndex, setResultIndex] = useState(0);
   /** 이번 실행(또는 다시 시도)을 시작한 시각. 시간 초과 판단용 */
   const startedAt = useRef(0);
   const endDate = LATEST_TRADING_DAY;
@@ -121,17 +122,32 @@ export function SimulationScreen() {
   };
 
   const reset = () => {
+    setResultIndex(0);
     setSubmitted(null);
     setJobIds({});
     create.reset();
   };
 
   return (
-    <ScreenFrame className="gap-4">
+    <ScreenFrame
+      className="gap-4"
+      // 결과 화면: 이전 결과로, 첫 결과면 입력 화면으로 (입력 화면은 이전 페이지로)
+      onBack={
+        finished
+          ? () => {
+              if (resultIndex > 0) setResultIndex(resultIndex - 1);
+              else reset();
+              document.querySelector("main")?.scrollTo({ top: 0 });
+            }
+          : undefined
+      }
+    >
       {finished && submitted ? (
         <SimulationResultView
           simulations={finished}
           draft={submitted}
+          index={resultIndex}
+          onIndexChange={setResultIndex}
           onRetry={reset}
           onFinish={() => router.push("/invest")}
         />

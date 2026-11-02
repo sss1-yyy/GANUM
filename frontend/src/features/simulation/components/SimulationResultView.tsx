@@ -28,22 +28,26 @@ const ARROW = { up: "▲ ", down: "▼ ", flat: "" } as const;
 export function SimulationResultView({
   simulations,
   draft,
+  index,
+  onIndexChange,
   onRetry,
   onFinish,
 }: {
   simulations: Simulation[];
   draft: SimulationDraft;
+  /** 지금 보고 있는 결과 (0~2). 상단 바 뒤로 가기에서도 바꿔서 화면 밖(SimulationScreen)에 둬요 */
+  index: number;
+  onIndexChange: (index: number) => void;
   onRetry: () => void;
   onFinish: () => void;
 }) {
-  const [index, setIndex] = useState(0);
   const simulation = simulations[index];
   const isLast = index === simulations.length - 1;
   const kind = simulation.input.kind;
   const result = simulation.status === "SUCCEEDED" ? simulation.result : null;
 
   const next = () => {
-    setIndex(index + 1);
+    onIndexChange(index + 1);
     document.querySelector("main")?.scrollTo({ top: 0 });
   };
 

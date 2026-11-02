@@ -19,7 +19,7 @@ import type { SimulationKind } from "../types";
 import { AmountSheet } from "./AmountSheet";
 import { DateSheet } from "./DateSheet";
 import { InstrumentSheet } from "./InstrumentSheet";
-import { CtaButton, Disclaimer, ExampleNotice } from "./SimulationParts";
+import { CtaButton, Disclaimer } from "./SimulationParts";
 
 type SheetId =
   | "TIMING_INSTRUMENT"
@@ -95,7 +95,6 @@ export function SimulationInputView({
           같은 돈을 다르게 투자했다면 결과가 어떻게 달랐을지 비교해 봐요.
         </p>
       </div>
-      <ExampleNotice />
 
       {KIND_ORDER.map((kind) => (
         <QuestionCard
