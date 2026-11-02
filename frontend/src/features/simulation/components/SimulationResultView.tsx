@@ -7,14 +7,13 @@ import {
   formatDotDate,
   formatKRW,
   formatManWon,
-  formatMonthDay,
   formatSignedPercent,
 } from "@/shared/lib/format";
 import type { SimulationDraft } from "../draft";
 import { maxDrawdownPercent } from "../drawdown";
 import { QUESTION_TITLE, SCENARIO_TITLES } from "../labels";
 import { compareSummary } from "../summary";
-import type { Scenario, Simulation, SimulationKind } from "../types";
+import type { Scenario, Simulation, SimulationKind, SimulationReason } from "../types";
 import { CtaButton, Disclaimer } from "./SimulationParts";
 
 const TONE_CLASS = {
@@ -87,7 +86,7 @@ export function SimulationResultView({
                   : { focus: result.scenarios[0].label, base: result.scenarios[1].label }
             }
           />
-          <ReasonSection simulation={simulation} draft={draft} />
+          <ReasonSection reasons={result.reasons} />
           <div className="rounded-card bg-sub flex flex-col gap-1.5 px-[18px] py-5">
             <p className="text-caption text-primary font-semibold">한 줄 정리</p>
             <p className="text-text-strong text-[14px] leading-6 font-semibold">
@@ -145,38 +144,36 @@ function assumptionLine(
   }
 }
 
+const REASON_TAG = { NEWS: "뉴스", ECONOMY: "경제" } as const;
+
 /**
- * "왜 이런 결과가 나왔나요?" — 뉴스·경제 지표 API 가 없어서 Figma 처럼 [예시] 자리로 보여줘요.
- * (docs/figma-api-gaps.md)
+ * "왜 이런 결과가 나왔나요?" — SIM-03 result.reasons (명세 v0.4).
+ * 비어 있으면 칸을 숨기고, 출처(sourceName·sourceUrl)를 함께 보여줘요.
  */
-function ReasonSection({ simulation, draft }: { simulation: Simulation; draft: SimulationDraft }) {
-  const { input } = simulation;
-  const name =
-    input.kind === "TIMING"
-      ? draft.TIMING.instrument?.name
-      : input.kind === "DIVERSIFICATION"
-        ? draft.DIVERSIFICATION.instruments[0]?.name
-        : draft.RECURRING.instrument?.name;
-  const rows = [
-    {
-      tag: "뉴스",
-      title: `[예시] ${name ?? "종목"} 관련 뉴스 제목`,
-      period: `${formatMonthDay(input.startDate)} ~ ${formatMonthDay(input.endDate)}`,
-    },
-    { tag: "경제", title: "[예시] 금리·환율 등 경제 지표 변화", period: "같은 기간" },
-  ];
+function ReasonSection({ reasons }: { reasons: SimulationReason[] }) {
+  if (reasons.length === 0) return null;
   return (
     <section className="flex flex-col gap-4">
       <h2 className="text-subtitle text-text-strong font-semibold">왜 이런 결과가 나왔나요?</h2>
       <ul className="rounded-card bg-surface shadow-card flex flex-col gap-2.5 px-[18px] py-5">
-        {rows.map((row) => (
-          <li key={row.tag} className="flex items-start gap-2.5">
+        {reasons.map((reason) => (
+          <li key={reason.type} className="flex items-start gap-2.5">
             <span className="bg-bg text-caption text-text-sub shrink-0 rounded-xl px-3.5 py-1 font-semibold">
-              {row.tag}
+              {REASON_TAG[reason.type]}
             </span>
             <span className="text-caption flex min-w-0 flex-1 flex-col gap-1.5 font-medium">
-              <span className="text-text-strong leading-[18px]">{row.title}</span>
-              <span className="text-text-sub">{row.period}</span>
+              <span className="text-text-strong leading-[18px]">{reason.title}</span>
+              <span className="text-text-sub">
+                {reason.period} ·{" "}
+                <a
+                  href={reason.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2"
+                >
+                  {reason.sourceName}
+                </a>
+              </span>
             </span>
           </li>
         ))}

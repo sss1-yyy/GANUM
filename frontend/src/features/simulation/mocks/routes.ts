@@ -5,7 +5,13 @@ import { generatePrices } from "@/mocks/shared/prices";
 import { chargeTokens } from "@/mocks/shared/usage";
 import { mockState, nextMockId } from "@/mocks/store";
 import type { MockRoute } from "@/mocks/types";
-import type { Scenario, SeriesPoint, Simulation, SimulationInput } from "../types";
+import type {
+  Scenario,
+  SeriesPoint,
+  Simulation,
+  SimulationInput,
+  SimulationReason,
+} from "../types";
 
 const LATEST_TRADING_DAY = "2026-10-23";
 
@@ -125,7 +131,7 @@ function md(date: string): string {
   return `${m}월 ${d}일`;
 }
 
-function compute(input: SimulationInput): Simulation["result"] {
+function compute(input: SimulationInput): Omit<NonNullable<Simulation["result"]>, "reasons"> {
   const [primary] = input.instrumentIds;
   const name = (id: string) => findInstrument(id)!.name;
   const assumptions = [
@@ -204,6 +210,61 @@ function compute(input: SimulationInput): Simulation["result"] {
   };
 }
 
+/** 종목별 뉴스 제목 (시연용 목데이터. 업황 수준의 일반적인 제목만 둬요) */
+const NEWS_TITLES: Record<string, string> = {
+  "000660": "SK하이닉스, AI 반도체 수요 확대 기대감",
+  "005930": "삼성전자, 메모리 업황 회복 기대감",
+  "069500": "코스피, 외국인 순매수에 상승 흐름",
+  "360750": "미국 증시, 기술주 강세에 상승 마감",
+};
+
+const ECONOMY_TITLES = [
+  "원/달러 환율 1.2% 상승",
+  "한국은행 기준금리 0.25%p 인하",
+  "원/달러 환율 0.8% 하락",
+];
+
+function dotDate(date: string): string {
+  return date.replaceAll("-", ".");
+}
+
+/**
+ * SIM-03 result.reasons (명세 v0.4) 목데이터.
+ * 실제 뉴스·ECOS 연동 대신 고른 종목·기간으로 문장을 만들어요. 기간이 7일 미만이면 [] (칸 숨김 확인용)
+ */
+function reasons(input: SimulationInput): SimulationReason[] {
+  const start =
+    input.comparisonStartDate && input.comparisonStartDate < input.startDate
+      ? input.comparisonStartDate
+      : input.startDate;
+  const days = (Date.parse(input.endDate) - Date.parse(start)) / 86_400_000;
+  if (days < 7) return [];
+
+  const instrument = findInstrument(input.instrumentIds[0] ?? "")!;
+  const middle = new Date((Date.parse(start) + Date.parse(input.endDate)) / 2)
+    .toISOString()
+    .slice(0, 10);
+  const [y, m, d] = middle.split("-").map(Number);
+  const economy = ECONOMY_TITLES[Number(start.slice(5, 7)) % ECONOMY_TITLES.length]!;
+
+  return [
+    {
+      type: "NEWS",
+      title: NEWS_TITLES[instrument.symbol] ?? `${instrument.name}, 업종 전반 흐름에 주가 등락`,
+      period: `${y}년 ${m}월 ${d}일`,
+      sourceName: "네이버 뉴스 검색",
+      sourceUrl: "https://news.naver.com/",
+    },
+    {
+      type: "ECONOMY",
+      title: economy,
+      period: `${dotDate(start)}~${dotDate(input.endDate)}`,
+      sourceName: "한국은행 ECOS",
+      sourceUrl: "https://ecos.bok.or.kr/",
+    },
+  ];
+}
+
 export const simulationMockRoutes: MockRoute[] = [
   // SIM-01
   {
@@ -237,7 +298,8 @@ export const simulationMockRoutes: MockRoute[] = [
       if (!stored) return notFound("시뮬레이션을 찾을 수 없어요.");
       const status = statusForReadCount(stored.readCount);
       stored.readCount += 1;
-      const result = status === "SUCCEEDED" ? compute(stored.simulation.input) : null;
+      const input = stored.simulation.input;
+      const result = status === "SUCCEEDED" ? { ...compute(input), reasons: reasons(input) } : null;
       return ok({ ...stored.simulation, status, result }, true);
     },
   },
