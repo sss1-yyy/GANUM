@@ -35,6 +35,8 @@ export function SimulationScreen() {
   const [submitted, setSubmitted] = useState<SimulationDraft | null>(null);
   const [jobIds, setJobIds] = useState<JobIds>({});
   const [resultIndex, setResultIndex] = useState(0);
+  /** 결과를 보는 중인지. 결과 1에서 뒤로 가도 결과는 지우지 않고 화면만 입력으로 바꿔요 */
+  const [showResults, setShowResults] = useState(false);
   /** 이번 실행(또는 다시 시도)을 시작한 시각. 시간 초과 판단용 */
   const startedAt = useRef(0);
   const endDate = LATEST_TRADING_DAY;
@@ -102,9 +104,14 @@ export function SimulationScreen() {
   // 같은 조건(값 비교)으로 실행했다가 오류로 멈췄고, 이미 만든 시뮬레이션이 있으면 이어서 해요
   const sameAsSubmitted = submitted !== null && isSameDraft(submitted, draft);
   const canResume = Boolean(error) && sameAsSubmitted && KIND_ORDER.some((kind) => jobIds[kind]);
+  // 결과가 있는데 조건을 바꾸지 않았으면 이용권 없이 결과를 다시 볼 수 있어요
+  const canViewResults = Boolean(finished) && sameAsSubmitted;
 
   const run = () => {
     if (create.isPending) return;
+    setShowResults(true);
+    // 이미 끝난 결과를 다시 보는 경우: 새로 만들거나 조회하지 않아요
+    if (canViewResults) return;
     startedAt.current = Date.now();
     // 입력을 바꿨으면 처음부터, 그대로면 이어서 (만든 ID 는 다시 만들지 않아요)
     const resume = sameAsSubmitted;
@@ -123,6 +130,7 @@ export function SimulationScreen() {
 
   const reset = () => {
     setResultIndex(0);
+    setShowResults(false);
     setSubmitted(null);
     setJobIds({});
     create.reset();
@@ -131,18 +139,18 @@ export function SimulationScreen() {
   return (
     <ScreenFrame
       className="gap-4"
-      // 결과 화면: 이전 결과로, 첫 결과면 입력 화면으로 (입력 화면은 이전 페이지로)
+      // 결과 화면: 이전 결과로, 첫 결과면 입력 화면으로 (결과는 남겨 둬요). 입력 화면은 이전 페이지로
       onBack={
-        finished
+        showResults && finished
           ? () => {
               if (resultIndex > 0) setResultIndex(resultIndex - 1);
-              else reset();
+              else setShowResults(false);
               document.querySelector("main")?.scrollTo({ top: 0 });
             }
           : undefined
       }
     >
-      {finished && submitted ? (
+      {showResults && finished && submitted ? (
         <SimulationResultView
           simulations={finished}
           draft={submitted}
@@ -161,6 +169,7 @@ export function SimulationScreen() {
           running={running}
           error={error ? errorMessage(error) : null}
           canResume={canResume}
+          canViewResults={canViewResults}
           onRun={run}
         />
       )}

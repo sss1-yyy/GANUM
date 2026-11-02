@@ -45,6 +45,7 @@ export function SimulationInputView({
   running,
   error,
   canResume,
+  canViewResults,
   onRun,
 }: {
   draft: SimulationDraft;
@@ -57,6 +58,8 @@ export function SimulationInputView({
   error: string | null;
   /** 오류로 멈춘 실행을 같은 조건으로 이어서 할 수 있는지 (새 실행이 아니라 재조회·남은 생성) */
   canResume: boolean;
+  /** 같은 조건의 결과가 남아 있어 이용권 없이 다시 볼 수 있는지 */
+  canViewResults: boolean;
   onRun: () => void;
 }) {
   const [sheet, setSheet] = useState<SheetId | null>(null);
@@ -173,9 +176,11 @@ export function SimulationInputView({
 
       <div className="text-caption text-text-sub flex flex-col gap-6 py-8 text-center">
         <p className="leading-[17px] font-medium">
-          {allDone
-            ? `3/3 완료 · 실행하면 ${isFreePlan ? "무료 " : ""}횟수가 1회 사용돼요`
-            : `세 질문의 조건을 모두 골라 주세요 (${doneCount}/3 완료)`}
+          {allDone && canViewResults
+            ? "조건이 그대로라 이용권 없이 결과를 다시 볼 수 있어요"
+            : allDone
+              ? `3/3 완료 · 실행하면 ${isFreePlan ? "무료 " : ""}횟수가 1회 사용돼요`
+              : `세 질문의 조건을 모두 골라 주세요 (${doneCount}/3 완료)`}
         </p>
         <Disclaimer />
       </div>
@@ -187,14 +192,19 @@ export function SimulationInputView({
           </p>
         )}
         {/* 이어서 하기는 이미 이용권을 쓴 실행이라 남은 횟수가 0이어도 누를 수 있어요 */}
-        <CtaButton disabled={!allDone || (outOfRuns && !canResume) || running} onClick={onRun}>
+        <CtaButton
+          disabled={!allDone || (outOfRuns && !canResume && !canViewResults) || running}
+          onClick={onRun}
+        >
           {running
             ? "시뮬레이션을 돌리는 중…"
-            : canResume
-              ? "다시 시도하기"
-              : outOfRuns
-                ? "이용권을 모두 썼어요"
-                : "시뮬레이션 돌리기"}
+            : canViewResults
+              ? "결과 다시 보기"
+              : canResume
+                ? "다시 시도하기"
+                : outOfRuns
+                  ? "이용권을 모두 썼어요"
+                  : "시뮬레이션 돌리기"}
         </CtaButton>
       </div>
 
