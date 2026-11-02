@@ -2,19 +2,22 @@
 
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ScreenFrame } from "@/components/layout/ScreenFrame";
-import { isApiError, POLL_INTERVAL_MS, type JobStatus } from "@/shared/api";
+import { ApiError, isApiError, POLL_INTERVAL_MS, type JobStatus } from "@/shared/api";
 import { getUsage, remainingRuns } from "@/shared/api/endpoints";
 import { sharedKeys } from "@/shared/api/query-keys";
 import { createSimulation, getSimulation, LATEST_TRADING_DAY, simulationKeys } from "../api";
-import { EMPTY_DRAFT, toSimulationInput, type SimulationDraft } from "../draft";
+import { EMPTY_DRAFT, isSameDraft, toSimulationInput, type SimulationDraft } from "../draft";
 import { KIND_ORDER } from "../labels";
 import type { Simulation, SimulationKind } from "../types";
 import { SimulationInputView } from "./SimulationInputView";
 import { SimulationResultView } from "./SimulationResultView";
 
 const isDone = (status: JobStatus | undefined) => status === "SUCCEEDED" || status === "FAILED";
+
+/** 이 시간 안에 끝나지 않으면 조회를 멈추고 다시 시도하게 해요 (pollUntilDone 과 같은 90초) */
+const POLL_TIMEOUT_MS = 90_000;
 
 type JobIds = Partial<Record<SimulationKind, string>>;
 
@@ -23,6 +26,7 @@ type JobIds = Partial<Record<SimulationKind, string>>;
  * - 실행할 때의 조건(submitted)을 따로 보관해서, 실행 중에 입력을 바꿔도 결과는 실행한 조건으로 보여줘요.
  * - 만든 시뮬레이션 ID(jobIds)를 기억해서, 중간에 오류가 나면 다시 누를 때 새로 만들지 않고
  *   못 만든 것만 만들고 조회를 이어가요. (이용권이 두 번 차감되지 않도록)
+ * - 조회 오류·시간 초과가 나면 반복 조회를 멈추고, "다시 시도하기"로 다시 시작해요.
  */
 export function SimulationScreen() {
   const router = useRouter();
@@ -30,6 +34,8 @@ export function SimulationScreen() {
   const [draft, setDraft] = useState<SimulationDraft>(EMPTY_DRAFT);
   const [submitted, setSubmitted] = useState<SimulationDraft | null>(null);
   const [jobIds, setJobIds] = useState<JobIds>({});
+  /** 이번 실행(또는 다시 시도)을 시작한 시각. 시간 초과 판단용 */
+  const startedAt = useRef(0);
   const endDate = LATEST_TRADING_DAY;
 
   const usage = useQuery({
@@ -60,11 +66,23 @@ export function SimulationScreen() {
       return {
         // 아직 만들기 전이면 질문별로 다른 자리 키를 써요 (빈 id 끼리 겹치지 않게)
         queryKey: id ? simulationKeys.detail(id) : ["simulations", "pending", kind],
-        queryFn: async ({ signal }: { signal: AbortSignal }) =>
-          (await getSimulation(id, signal)).data,
+        queryFn: async ({ signal }: { signal: AbortSignal }) => {
+          const simulation = (await getSimulation(id, signal)).data;
+          if (!isDone(simulation.status) && Date.now() - startedAt.current > POLL_TIMEOUT_MS) {
+            throw new ApiError(
+              0,
+              "POLL_TIMEOUT",
+              "처리 시간이 너무 오래 걸려요. 잠시 후 다시 시도해 주세요.",
+            );
+          }
+          return simulation;
+        },
         enabled: Boolean(jobIds[kind]),
-        refetchInterval: (query: { state: { data?: Simulation } }) =>
-          isDone(query.state.data?.status) ? false : POLL_INTERVAL_MS,
+        // 끝났거나 오류가 나면 멈춰요. 오류는 "다시 시도하기"에서 refetch 로 다시 시작해요
+        refetchInterval: (query: { state: { data?: Simulation; status: string } }) =>
+          query.state.status === "error" || isDone(query.state.data?.status)
+            ? false
+            : POLL_INTERVAL_MS,
       };
     }),
   });
@@ -77,15 +95,18 @@ export function SimulationScreen() {
       : null;
   // 다시 조회하는 중에는 오류를 내리고 "돌리는 중"으로 보여줘요
   const pollError = polls.find((poll) => poll.isError && !poll.isFetching)?.error ?? null;
-  const error = create.error ?? pollError;
-  const running = Boolean(submitted) && !finished && !error;
-  // 같은 조건으로 실행했다가 오류로 멈췄고, 이미 만든 시뮬레이션이 있으면 이어서 해요
-  const canResume =
-    Boolean(error) && submitted === draft && KIND_ORDER.some((kind) => jobIds[kind]);
+  const error = create.isPending ? null : (create.error ?? pollError);
+  // 생성 요청이 도는 중에는 조회 오류가 나도 "돌리는 중"으로 두어 버튼이 눌리지 않게 해요 (요청 중복 방지)
+  const running = create.isPending || (Boolean(submitted) && !finished && !error);
+  // 같은 조건(값 비교)으로 실행했다가 오류로 멈췄고, 이미 만든 시뮬레이션이 있으면 이어서 해요
+  const sameAsSubmitted = submitted !== null && isSameDraft(submitted, draft);
+  const canResume = Boolean(error) && sameAsSubmitted && KIND_ORDER.some((kind) => jobIds[kind]);
 
   const run = () => {
+    if (create.isPending) return;
+    startedAt.current = Date.now();
     // 입력을 바꿨으면 처음부터, 그대로면 이어서 (만든 ID 는 다시 만들지 않아요)
-    const resume = submitted === draft;
+    const resume = sameAsSubmitted;
     const existing = resume ? jobIds : {};
     if (!resume) {
       setSubmitted(draft);

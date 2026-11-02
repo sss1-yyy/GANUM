@@ -35,6 +35,11 @@ export function isComplete(draft: SimulationDraft, kind: SimulationKind): boolea
   }
 }
 
+/** 고른 값이 같은지 (시트에서 같은 값을 다시 골라 객체만 새로 생긴 경우도 같다고 봐요) */
+export function isSameDraft(a: SimulationDraft, b: SimulationDraft): boolean {
+  return a === b || JSON.stringify(a) === JSON.stringify(b);
+}
+
 /** 고를 수 있는 가장 늦은 시작일. Q1 은 한 달 뒤 비교 시점도 종료일 전이어야 해요 */
 export function latestStartDate(kind: SimulationKind, endDate: string): string {
   if (kind === "TIMING") return shiftDate(shiftMonths(endDate, -TIMING_COMPARE_MONTHS), -1);

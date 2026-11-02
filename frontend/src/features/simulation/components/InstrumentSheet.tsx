@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { useDeferredValue, useState } from "react";
+import { useEffect, useState } from "react";
 import { getInstruments, type InstrumentsQuery } from "@/shared/api/endpoints";
 import { sharedKeys } from "@/shared/api/query-keys";
 import { cn } from "@/shared/lib/cn";
@@ -53,18 +53,28 @@ export function InstrumentSheet({
   const [selected, setSelected] = useState<Instrument[]>(initial);
   const [type, setType] = useState<TypeFilter>(initialType);
   const [keyword, setKeyword] = useState("");
-  const deferredKeyword = useDeferredValue(keyword.trim());
+  // 입력을 멈추고 0.3초 뒤에 검색해요 (글자마다 요청하지 않도록)
+  const [searchKeyword, setSearchKeyword] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => setSearchKeyword(keyword.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [keyword]);
 
+  const overseas = type === "OVERSEAS";
   const params: InstrumentsQuery = {
-    ...(deferredKeyword ? { query: deferredKeyword.slice(0, 50) } : {}),
+    ...(searchKeyword ? { query: searchKeyword.slice(0, 50) } : {}),
     ...(type === "STOCK" || type === "ETF" ? { type } : {}),
     limit: 20,
   };
   const list = useQuery({
     queryKey: sharedKeys.instruments(params),
     queryFn: async () => (await getInstruments(params)).data.items,
-    enabled: type !== "OVERSEAS",
+    enabled: !overseas,
+    // 새 검색 결과가 올 때까지 이전 목록을 그대로 보여줘요
+    placeholderData: keepPreviousData,
   });
+  // "해외"는 "전체"와 조회 키가 같아 캐시가 남아 있으니 목록을 직접 비워요
+  const items = overseas ? [] : list.data;
 
   const multiple = max > 1;
   const isSelected = (id: string) => selected.some((item) => item.id === id);
@@ -101,18 +111,18 @@ export function InstrumentSheet({
       )}
 
       <div className="text-caption flex justify-between font-semibold">
-        <p className="text-text-strong">{deferredKeyword ? "검색 결과" : listLabel}</p>
+        <p className="text-text-strong">{searchKeyword ? "검색 결과" : listLabel}</p>
         <p className="text-primary">
           {multiple ? `${selected.length}/${max} 선택` : selected.length > 0 ? "1개 선택" : ""}
         </p>
       </div>
 
       <ul className="flex flex-col gap-4">
-        {type === "OVERSEAS" && <SheetMessage>해외 종목은 아직 준비 중이에요.</SheetMessage>}
-        {type !== "OVERSEAS" && list.isPending && <SheetMessage>불러오는 중…</SheetMessage>}
-        {list.isError && <SheetMessage danger>종목을 불러오지 못했어요.</SheetMessage>}
-        {list.data?.length === 0 && <SheetMessage>찾는 종목이 없어요.</SheetMessage>}
-        {list.data?.map((instrument) => {
+        {overseas && <SheetMessage>해외 종목은 아직 준비 중이에요.</SheetMessage>}
+        {!overseas && list.isPending && <SheetMessage>불러오는 중…</SheetMessage>}
+        {!overseas && list.isError && <SheetMessage danger>종목을 불러오지 못했어요.</SheetMessage>}
+        {!overseas && items?.length === 0 && <SheetMessage>찾는 종목이 없어요.</SheetMessage>}
+        {items?.map((instrument) => {
           const on = isSelected(instrument.id);
           const blocked = multiple && !on && selected.length >= max;
           return (

@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { cn } from "@/shared/lib/cn";
+import { CtaButton } from "./SimulationParts";
 
 /** 아래에서 올라오는 시트. 바깥(어두운 영역)을 누르거나 Esc 를 누르면 닫혀요 */
 export function BottomSheet({
@@ -91,22 +92,9 @@ export function SheetCta({
 }) {
   return (
     <div className="pt-2">
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={onClick}
-        className="rounded-button bg-primary disabled:bg-line h-[60px] w-full"
-      >
-        {/* globals.css 의 button { font: inherit } 가 유틸리티보다 우선이라 글자 스타일은 span 에 줘요 */}
-        <span
-          className={cn(
-            "text-subtitle font-semibold",
-            disabled ? "text-text-muted" : "text-surface",
-          )}
-        >
-          {children}
-        </span>
-      </button>
+      <CtaButton disabled={disabled} onClick={onClick}>
+        {children}
+      </CtaButton>
     </div>
   );
 }
