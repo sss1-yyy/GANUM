@@ -52,10 +52,12 @@ export function BottomSheet({
 
 export function Chip({
   active,
+  disabled,
   onClick,
   children,
 }: {
   active: boolean;
+  disabled?: boolean;
   onClick: () => void;
   children: ReactNode;
 }) {
@@ -63,8 +65,12 @@ export function Chip({
     <button
       type="button"
       aria-pressed={active}
+      disabled={disabled}
       onClick={onClick}
-      className={cn("shrink-0 rounded-full px-3.5 py-2", active ? "bg-primary" : "bg-bg")}
+      className={cn(
+        "shrink-0 rounded-full px-3.5 py-2 disabled:opacity-40",
+        active ? "bg-primary" : "bg-bg",
+      )}
     >
       <span className={cn("text-caption font-semibold", active ? "text-surface" : "text-text-sub")}>
         {children}

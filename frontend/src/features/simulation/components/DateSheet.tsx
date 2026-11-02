@@ -64,7 +64,13 @@ export function DateSheet({
         {QUICK_PICKS.map(({ months, label }) => {
           const date = shiftMonths(base, -months);
           return (
-            <Chip key={months} active={selected === date} onClick={() => pick(date)}>
+            // 고를 수 있는 마지막 날(max)보다 늦으면 꺼요 (Q1 "1개월 전"은 비교 시점이 종료일과 겹쳐서)
+            <Chip
+              key={months}
+              active={selected === date}
+              disabled={date > max}
+              onClick={() => pick(date)}
+            >
               {label}
             </Chip>
           );
