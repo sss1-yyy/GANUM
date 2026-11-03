@@ -11,8 +11,9 @@ import notification from "./assets/notification.png";
  * Figma 상단 바(뒤로가기 · 로고 · 알림).
  * onBack 을 주면 화면 안에서 뒤로 가요(예: 결과 → 입력). 없으면 이전 페이지로 가고,
  * 주소를 바로 열어 이전 기록이 없으면 홈으로 가요.
+ * hideBack 을 주면 뒤로 가기를 숨겨요(예: 홈처럼 첫 화면). 로고 자리는 그대로예요.
  */
-export function TopBar({ onBack }: { onBack?: () => void }) {
+export function TopBar({ onBack, hideBack = false }: { onBack?: () => void; hideBack?: boolean }) {
   const router = useRouter();
   const goBack = () => {
     if (onBack) return onBack();
@@ -21,9 +22,13 @@ export function TopBar({ onBack }: { onBack?: () => void }) {
   };
   return (
     <header className="relative flex h-(--top-bar-height) items-center justify-between px-8">
-      <button type="button" aria-label="뒤로 가기" onClick={goBack} className="size-7">
-        <Image src={chevronLeft} alt="" width={28} height={28} />
-      </button>
+      {hideBack ? (
+        <span className="size-7" />
+      ) : (
+        <button type="button" aria-label="뒤로 가기" onClick={goBack} className="size-7">
+          <Image src={chevronLeft} alt="" width={28} height={28} />
+        </button>
+      )}
       {/* Figma 로고 이미지가 여백을 포함하고 있어서 같은 비율로 잘라 보여줘요 */}
       <div className="absolute top-[17px] left-[calc(50%+0.5px)] h-[22px] w-[104px] -translate-x-1/2 overflow-hidden">
         <Image
