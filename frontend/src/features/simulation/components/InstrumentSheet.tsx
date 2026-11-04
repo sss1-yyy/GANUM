@@ -3,6 +3,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { InstrumentLogo } from "@/components/domain/InstrumentLogo";
 import { getInstruments, type InstrumentsQuery } from "@/shared/api/endpoints";
 import { sharedKeys } from "@/shared/api/query-keys";
 import { cn } from "@/shared/lib/cn";
@@ -10,7 +11,6 @@ import type { Instrument, InstrumentType } from "@/shared/types";
 import checkOn from "../assets/check-on.svg";
 import search from "../assets/search.svg";
 import { BottomSheet, Chip, SheetCta } from "./BottomSheet";
-import { InstrumentLogo } from "./InstrumentLogo";
 
 /** OVERSEAS(해외)는 API 종류에 없어서 칩만 두고 "준비 중"을 보여줘요 (docs/figma-api-gaps.md) */
 type TypeFilter = "ALL" | InstrumentType | "OVERSEAS";
@@ -137,7 +137,7 @@ export function InstrumentSheet({
                   on ? "border-primary" : "border-transparent",
                 )}
               >
-                <InstrumentLogo symbol={instrument.symbol} name={instrument.name} />
+                <InstrumentLogo name={instrument.name} />
                 <span className="flex min-w-0 flex-1 flex-col gap-1.5">
                   <span className="text-text-strong truncate text-[14px] font-semibold">
                     {instrument.name}
