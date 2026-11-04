@@ -137,7 +137,7 @@ export function InstrumentSheet({
                   on ? "border-primary" : "border-transparent",
                 )}
               >
-                <InstrumentLogo name={instrument.name} />
+                <InstrumentLogo instrumentId={instrument.id} name={instrument.name} />
                 <span className="flex min-w-0 flex-1 flex-col gap-1.5">
                   <span className="text-text-strong truncate text-[14px] font-semibold">
                     {instrument.name}

@@ -7,11 +7,11 @@ import skMark2 from "./assets/logos/sk-mark-2.svg";
 
 /**
  * 종목 로고 (40px 원). API 에 로고가 없어서 Figma 에 그려진 4개 종목만 Figma 그대로 보여주고,
- * 나머지는 이름 첫 글자로 대신해요. (docs/figma-api-gaps.md)
+ * 나머지는 이름 첫 글자로 대신해요. 이름은 표기가 달라질 수 있어 종목 ID 로 골라요. (docs/figma-api-gaps.md)
  */
-export function InstrumentLogo({ name }: { name: string }) {
-  switch (name) {
-    case "SK하이닉스":
+export function InstrumentLogo({ instrumentId, name }: { instrumentId: string; name: string }) {
+  switch (instrumentId) {
+    case "ins_000660":
       return (
         <span aria-hidden className="relative size-10 shrink-0 overflow-hidden rounded-full">
           <Image src={skBg} alt="" width={40} height={40} className="absolute inset-0" />
@@ -31,7 +31,7 @@ export function InstrumentLogo({ name }: { name: string }) {
           />
         </span>
       );
-    case "삼성전자":
+    case "ins_005930":
       return (
         <span aria-hidden className="relative size-10 shrink-0 overflow-hidden rounded-full">
           <Image src={samsungBg} alt="" width={40} height={40} className="absolute inset-0" />
@@ -44,7 +44,7 @@ export function InstrumentLogo({ name }: { name: string }) {
           />
         </span>
       );
-    case "KODEX 200":
+    case "ins_069500":
       return (
         // Figma KODEX 200 로고 색 (브랜드 색이라 토큰에 없음)
         <span
@@ -55,7 +55,7 @@ export function InstrumentLogo({ name }: { name: string }) {
           <span>200</span>
         </span>
       );
-    case "TIGER 미국S&P500":
+    case "ins_360750":
       return (
         // Figma TIGER 미국S&P500 로고 색 (브랜드 색이라 토큰에 없음)
         <span
