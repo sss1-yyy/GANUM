@@ -123,7 +123,21 @@ export function InvestScreen() {
         </p>
       </section>
 
-      {/* 금융 목표 (GOAL-01) — 미설정이면 숨겨요 */}
+      {/* 금융 목표 (GOAL-01) — 미설정(null)이면 숨기고, 요청 실패는 다시 시도를 보여줘요 */}
+      {goal.isError && (
+        <section className="rounded-card border-line flex items-center justify-between border p-4">
+          <p role="alert" className="text-caption text-danger">
+            목표를 불러오지 못했어요.
+          </p>
+          <button
+            type="button"
+            onClick={() => void goal.refetch()}
+            className="rounded-button bg-sub px-4 py-1.5"
+          >
+            <span className="text-caption text-primary font-semibold">다시 시도</span>
+          </button>
+        </section>
+      )}
       {goalData && (
         <section className="rounded-card border-line border p-4">
           <div className="flex items-baseline justify-between">
