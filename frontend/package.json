@@ -10,8 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "node scripts/test.mjs run",
+    "test:watch": "node scripts/test.mjs",
     "check": "npm run typecheck && npm run lint && npm run test && npm run format:check",
     "prepare": "cd .. && husky frontend/.husky"
   },
