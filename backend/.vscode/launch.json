@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "GANUM 서버 (디버그)",
+      "request": "launch",
+      "mainClass": "com.ganum.GanumBackendApplication",
+      "projectName": "ganum-backend"
+    }
+  ]
+}
