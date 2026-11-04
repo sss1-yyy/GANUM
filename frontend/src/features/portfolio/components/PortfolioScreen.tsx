@@ -321,7 +321,7 @@ function HoldingRow({ holding }: { holding: Holding }) {
   const percent = holding.profitLossPercent;
   return (
     <Link href={`/invest/${holding.instrumentId}`} className="flex items-center gap-3">
-      <InstrumentLogo name={holding.name} />
+      <InstrumentLogo instrumentId={holding.instrumentId} name={holding.name} />
       <span className="flex min-w-0 flex-1 flex-col gap-1.5 font-medium">
         <span className="text-subtitle text-text truncate">{holding.name}</span>
         <span className="text-caption text-text-sub">{holding.quantity}주</span>
