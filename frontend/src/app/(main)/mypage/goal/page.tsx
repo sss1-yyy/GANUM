@@ -1,6 +1,5 @@
-// 담당: D · 화면: 목표
-// 사용할 API: GOAL-01, GOAL-02 (docs/mock-guide.md 참고)
-// 이 파일에 화면을 구현하세요. 큰 화면은 src/features/<기능>/components/ 에 만들고 여기서 불러옵니다.
+import { GoalScreen } from "@/features/mypage/components/GoalScreen";
+
 export default function Page() {
-  return null;
+  return <GoalScreen />;
 }

@@ -11,7 +11,8 @@ export const markNotificationRead = (id: string) =>
   apiPatch<AppNotification>(`/notifications/${id}`, { read: true });
 
 // PAPER-04 · 모의 거래 기록 (투자 기록 화면)
-export const getOrderRecords = () => apiGet<ListData<OrderRecord>>("/paper/orders");
+export const getOrderRecords = (cursor?: string | null, signal?: AbortSignal) =>
+  apiGet<ListData<OrderRecord>>("/paper/orders", { query: { cursor }, signal });
 
 export const mypageKeys = {
   notifications: ["notifications"] as const,
