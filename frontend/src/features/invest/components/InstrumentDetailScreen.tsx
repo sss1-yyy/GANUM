@@ -86,14 +86,16 @@ export function InstrumentDetailScreen({ instrumentId }: { instrumentId: string 
       getPrices(instrumentId, { from, to, interval: periodTab.interval }, signal),
   });
 
-  if (detail.isPending) {
+  // 보유 여부(매도 가능)까지 확인해야 해서 종목·포트폴리오를 함께 기다려요
+  if (detail.isPending || portfolio.isPending) {
     return (
       <ScreenFrame>
         <p className="text-caption text-text-sub py-20 text-center">불러오는 중…</p>
       </ScreenFrame>
     );
   }
-  if (detail.isError) {
+  // 포트폴리오 조회 실패를 "보유 없음"으로 착각해 매도를 막지 않도록 함께 안내해요
+  if (detail.isError || portfolio.isError) {
     return (
       <ScreenFrame className="items-center gap-3 py-20">
         <p role="alert" className="text-caption text-danger">
@@ -101,7 +103,10 @@ export function InstrumentDetailScreen({ instrumentId }: { instrumentId: string 
         </p>
         <button
           type="button"
-          onClick={() => void detail.refetch()}
+          onClick={() => {
+            if (detail.isError) void detail.refetch();
+            if (portfolio.isError) void portfolio.refetch();
+          }}
           className="rounded-button bg-sub px-5 py-2"
         >
           <span className="text-caption text-primary font-semibold">다시 시도하기</span>
@@ -112,7 +117,7 @@ export function InstrumentDetailScreen({ instrumentId }: { instrumentId: string 
 
   const item = detail.data.data;
   const holding =
-    portfolio.data?.data.holdings.find((entry) => entry.instrumentId === instrumentId) ?? null;
+    portfolio.data.data.holdings.find((entry) => entry.instrumentId === instrumentId) ?? null;
   const typeLabel = profile.data?.data?.typeLabel ?? null;
   const pricePoints = prices.data?.data.points ?? [];
   const periodTone: ChangeTone =
