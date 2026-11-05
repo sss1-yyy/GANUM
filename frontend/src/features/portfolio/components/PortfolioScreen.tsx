@@ -13,6 +13,7 @@ import {
   changeTone,
   formatArrowPercent,
   formatKRW,
+  formatNumber,
   formatPercent,
   formatSignedPercent,
   type ChangeTone,
@@ -157,7 +158,7 @@ function ValueCard({ portfolio, today }: { portfolio: PaperPortfolio; today: str
   );
 }
 
-/** 평가금액 추이 ([명세 외] API). 기간을 바꾸는 동안에는 이전 선을 그대로 둬요 */
+/** 평가금액 추이 ([명세 외] API). 기간을 바꾸는 동안에는 이전 선을 흐리게 둬요 */
 function TrendChart({ today }: { today: string }) {
   const [period, setPeriod] = useState(PERIODS[1]!);
   const from = period.days === null ? undefined : shiftDate(today, -period.days);
@@ -167,6 +168,7 @@ function TrendChart({ today }: { today: string }) {
     placeholderData: keepPreviousData,
   });
   const values = history.data?.map((point) => point.totalValue) ?? [];
+  const line = trendLine(values);
 
   return (
     <>
@@ -193,20 +195,20 @@ function TrendChart({ today }: { today: string }) {
           );
         })}
       </div>
-      {values.length >= 2 ? (
+      {line ? (
         <svg
           role="img"
           aria-label={`평가금액 추이 ${period.label}`}
           viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
-          className="text-primary h-24 w-[281px]"
+          className={cn("text-primary h-24 w-[281px]", history.isPlaceholderData && "opacity-50")}
         >
           <polygon
-            points={`0,${CHART_HEIGHT} ${trendLine(values)} ${CHART_WIDTH},${CHART_HEIGHT}`}
+            points={`0,${CHART_HEIGHT} ${line} ${CHART_WIDTH},${CHART_HEIGHT}`}
             fill="currentColor"
             fillOpacity={0.08}
           />
           <polyline
-            points={trendLine(values)}
+            points={line}
             fill="none"
             stroke="currentColor"
             strokeWidth={2.5}
@@ -243,6 +245,10 @@ function AllocationCard({ allocation }: { allocation: PaperAllocation[] }) {
   const starts = items.map((_, index) =>
     items.slice(0, index).reduce((sum, item) => sum + item.weightPercent, 0),
   );
+  // 비중은 반올림된 값이라 합이 100 이 아닐 수 있어요. 마지막 조각으로 맞춰 틈이나 겹침을 없애요
+  const sizes = items.map((item, index) =>
+    index === items.length - 1 ? 100 - starts[index]! : item.weightPercent,
+  );
 
   return (
     <Card>
@@ -259,7 +265,7 @@ function AllocationCard({ allocation }: { allocation: PaperAllocation[] }) {
               fill="none"
               strokeWidth={20}
               pathLength={100}
-              strokeDasharray={`${item.weightPercent} ${100 - item.weightPercent}`}
+              strokeDasharray={`${sizes[index]!} ${100 - sizes[index]!}`}
               strokeDashoffset={-starts[index]!}
               className={ALLOCATION_COLORS[index]!.stroke}
             />
@@ -324,7 +330,9 @@ function HoldingRow({ holding }: { holding: Holding }) {
       <InstrumentLogo instrumentId={holding.instrumentId} name={holding.name} />
       <span className="flex min-w-0 flex-1 flex-col gap-1.5 font-medium">
         <span className="text-subtitle text-text truncate">{holding.name}</span>
-        <span className="text-caption text-text-sub">{holding.quantity}주</span>
+        <span className="text-caption text-text-sub">
+          {formatNumber(Number(holding.quantity))}주
+        </span>
       </span>
       <span className="flex shrink-0 flex-col items-end gap-1.5">
         <span className="text-subtitle text-text-strong font-semibold">

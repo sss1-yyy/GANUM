@@ -9,4 +9,9 @@ describe("trendLine", () => {
   it("값이 모두 같으면 가운데 가로선이에요", () => {
     expect(trendLine([500, 500])).toBe("0.0,43.0 281.0,43.0");
   });
+
+  it("값이 2개보다 적으면 빈 문자열이에요", () => {
+    expect(trendLine([])).toBe("");
+    expect(trendLine([500])).toBe("");
+  });
 });
