@@ -11,6 +11,7 @@ import { sharedKeys } from "@/shared/api/query-keys";
 import { cn } from "@/shared/lib/cn";
 import { formatKRW, formatNumber, formatSignedKRW, formatSignedPercent } from "@/shared/lib/format";
 import { investKeys, placeOrder } from "../api";
+import { toneClass } from "../lib/tone";
 import type { OrderSide, PaperOrderResult } from "../types";
 
 /** PAPER-03 오류 코드 → 사용자 안내 문구 (API 명세서 v0.4) */
@@ -274,16 +275,7 @@ export function OrderScreen({ instrumentId, side }: { instrumentId: string; side
               </div>
               <div className="flex items-center justify-between">
                 <dt className="text-text-sub text-[15px]">예상 손익</dt>
-                <dd
-                  className={cn(
-                    "font-semibold",
-                    expectedProfit !== null && expectedProfit > 0
-                      ? "text-positive"
-                      : expectedProfit !== null && expectedProfit < 0
-                        ? "text-negative"
-                        : "text-text-strong",
-                  )}
-                >
+                <dd className={cn("font-semibold", toneClass(expectedProfit))}>
                   {expectedProfit !== null && quantity >= 1
                     ? `${formatSignedKRW(expectedProfit)}(${formatSignedPercent(expectedProfitPercent)})`
                     : "-"}

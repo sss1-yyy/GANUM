@@ -1,5 +1,6 @@
 import { diagnosisMockRoutes } from "@/features/diagnosis/mocks/routes";
 import { reportMockRoutes } from "@/features/report/mocks/routes";
+import { portfolioMockRoutes } from "@/features/portfolio/mocks/routes";
 import { simulationMockRoutes } from "@/features/simulation/mocks/routes";
 import { assetsMockRoutes } from "@/features/assets/mocks/routes";
 import { benefitsMockRoutes } from "@/features/benefits/mocks/routes";
@@ -21,6 +22,7 @@ export const mockRoutes: MockRoute[] = [
   ...investMockRoutes,
   ...chatMockRoutes,
   ...reportMockRoutes,
+  ...portfolioMockRoutes,
   ...simulationMockRoutes,
   ...assetsMockRoutes,
   ...benefitsMockRoutes,
