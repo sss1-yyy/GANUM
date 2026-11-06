@@ -28,7 +28,7 @@ export function ChatFab({
         onClick={() => setOpen(true)}
         className={cn(
           // 앱 틀(--app-width) 안쪽 오른쪽 아래에 고정 (넓은 화면에서도 틀 밖으로 안 나가게)
-          "shadow-ai fixed bottom-6 z-40 flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-[#9079f6] to-[#6a4cf0]",
+          "shadow-ai from-coach to-primary fixed bottom-6 z-40 flex size-12 items-center justify-center rounded-full bg-gradient-to-br",
           "right-[max(1.25rem,calc(50vw-(var(--app-width)/2)+1.25rem))]",
           className,
         )}

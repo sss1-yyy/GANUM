@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { USE_MOCK } from "@/shared/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { isApiError } from "@/shared/api/error";
 import type { ChatContextType } from "@/shared/types";
 import { createChatSession, listChatMessages, sendChatMessage } from "../api";
-import type { ChatMessage } from "../types";
 
 /** 컨텍스트 카드의 "지금 보고 있는 ○○" 문구 */
 const CONTEXT_LABELS: Record<ChatContextType, string> = {
@@ -17,6 +15,9 @@ const CONTEXT_LABELS: Record<ChatContextType, string> = {
   INSTRUMENT: "종목",
   SIMULATION: "시뮬레이션 결과",
 };
+
+/** 시트를 닫고 5분 안에 다시 열면 대화를 이어가요 (TanStack Query 캐시 유지 시간) */
+const CHAT_KEEP_MS = 5 * 60_000;
 
 /** CHAT-04 오류 코드 → 사용자 안내 문구 (API 명세서) */
 const SEND_ERROR_MESSAGES: Record<string, string> = {
@@ -38,34 +39,27 @@ export function ChatSheet({
   contextId?: string | null;
   onClose: () => void;
 }) {
+  const queryClient = useQueryClient();
   const [input, setInput] = useState("");
-  /** 이번에 보낸 질문·답변 (CHAT-03 초기 목록 뒤에 이어 붙여요) */
-  const [sent, setSent] = useState<ChatMessage[]>([]);
   const [suggestions, setSuggestions] = useState<string[] | null>(null);
   const threadRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
 
   // CHAT-01 · 같은 맥락이면 세션을 다시 만들지 않고 캐시를 재사용해요
   const session = useQuery({
     queryKey: ["chat", "session", contextType, contextId],
     queryFn: () => createChatSession(contextType, contextId),
     staleTime: Infinity,
+    gcTime: CHAT_KEEP_MS,
   });
   const sessionId = session.data?.data.id ?? null;
 
-  // CHAT-03 · 지난 메시지 (이후 대화는 sent 로 이어 붙이므로 다시 불러오지 않아요)
+  // CHAT-03 · 메시지 목록. 보낸 질문·답변도 이 캐시에 쌓여서, 5분 안에 다시 열면 대화가 이어져요
   const history = useQuery({
     enabled: sessionId !== null,
     queryKey: ["chat", "messages", sessionId],
     queryFn: () => listChatMessages(sessionId ?? ""),
     staleTime: Infinity,
+    gcTime: CHAT_KEEP_MS,
     refetchOnWindowFocus: false,
   });
 
@@ -73,20 +67,28 @@ export function ChatSheet({
   const send = useMutation({
     mutationFn: (content: string) => sendChatMessage(sessionId ?? "", content),
     onSuccess: (response) => {
-      setSent((prev) => [...prev, response.data.userMessage, response.data.assistantMessage]);
+      // 컴포넌트 state 대신 메시지 쿼리 캐시에 바로 붙여요 — 시트를 닫아도 캐시가 남는 동안 대화가 유지돼요
+      queryClient.setQueryData<typeof history.data>(["chat", "messages", sessionId], (old) =>
+        old
+          ? {
+              ...old,
+              data: {
+                ...old.data,
+                items: [
+                  ...old.data.items,
+                  response.data.userMessage,
+                  response.data.assistantMessage,
+                ],
+              },
+            }
+          : old,
+      );
       setSuggestions(response.data.suggestedQuestions);
       setInput("");
     },
   });
 
-  const historyItems = history.data?.data.items ?? [];
-  // 혹시 같은 메시지가 양쪽에 있어도 한 번만 보여줘요
-  const seen = new Set<string>();
-  const messages = [...historyItems, ...sent].filter((item) => {
-    if (seen.has(item.id)) return false;
-    seen.add(item.id);
-    return true;
-  });
+  const messages = history.data?.data.items ?? [];
   const chips = suggestions ?? session.data?.data.suggestedQuestions ?? [];
 
   // 새 메시지가 생기면 맨 아래로 스크롤
@@ -123,22 +125,11 @@ export function ChatSheet({
         aria-label="AI 금융 코치"
         className="bg-surface sheet-enter relative flex h-[680px] max-h-[85dvh] w-full max-w-(--app-width) flex-col rounded-t-[24px] px-8 pt-6 pb-10"
       >
-        <header className="flex items-center justify-between">
-          <h2 className="text-text-strong font-bold">AI 금융 코치</h2>
-          <button type="button" aria-label="시트 닫기" onClick={onClose} className="p-1">
-            <svg
-              aria-hidden
-              viewBox="0 0 24 24"
-              className="text-text-muted size-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            >
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
-        </header>
+        {/* Figma: 회색 손잡이 막대 + 22px 제목, 닫기는 바깥 영역 누르기 */}
+        <div className="flex justify-center">
+          <div className="bg-line h-1 w-10 rounded-[2px]" />
+        </div>
+        <h2 className="text-title text-text-strong mt-4 font-bold">AI 금융 코치</h2>
 
         {session.isPending && (
           <p className="text-caption text-text-sub py-16 text-center">대화를 준비하고 있어요…</p>
@@ -191,7 +182,6 @@ export function ChatSheet({
               {messages.length === 0 && (
                 <AssistantBubble
                   content={`안녕하세요! 보고 계신 ${CONTEXT_LABELS[contextType]}에 대해 궁금한 점을 편하게 물어보세요. 아래 추천 질문을 눌러도 돼요.`}
-                  example={false}
                 />
               )}
               {messages.map((item) =>
@@ -203,7 +193,7 @@ export function ChatSheet({
                     {item.content}
                   </p>
                 ) : (
-                  <AssistantBubble key={item.id} content={item.content} example={USE_MOCK} />
+                  <AssistantBubble key={item.id} content={item.content} />
                 ),
               )}
               {send.isPending && (
@@ -277,15 +267,11 @@ export function ChatSheet({
   );
 }
 
-/**
- * AI 답변 말풍선. "쉽게 말하면:" 뒤는 흰 카드로 분리해요 (docs/figma-api-gaps.md).
- * 목데이터 답변에는 [예시] 를 표시해요 (이슈 #45 완료 조건).
- */
-function AssistantBubble({ content, example }: { content: string; example: boolean }) {
+/** AI 답변 말풍선. "쉽게 말하면:" 뒤는 흰 카드로 분리해요 (docs/figma-api-gaps.md) */
+function AssistantBubble({ content }: { content: string }) {
   const [body, easy] = content.split(/\n*쉽게 말하면:\s*/);
   return (
     <div className="bg-bg max-w-[85%] self-start rounded-[16px] rounded-tl-[4px] px-3.5 py-2.5">
-      {example && <p className="text-caption text-text-muted mb-1">[예시]</p>}
       <p className="text-text-strong text-[15px] leading-[1.5] whitespace-pre-line">{body}</p>
       {easy && (
         <div className="bg-surface border-line mt-2.5 rounded-[12px] border p-3">
