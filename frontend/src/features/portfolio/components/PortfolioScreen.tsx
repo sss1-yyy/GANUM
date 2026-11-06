@@ -63,14 +63,14 @@ export function PortfolioScreen() {
 
   if (portfolio.isPending) {
     return (
-      <ScreenFrame>
+      <ScreenFrame tabBar>
         <p className="text-caption text-text-sub py-20 text-center">불러오는 중…</p>
       </ScreenFrame>
     );
   }
   if (portfolio.isError) {
     return (
-      <ScreenFrame className="items-center gap-3 py-20">
+      <ScreenFrame tabBar className="items-center gap-3 py-20">
         <p role="alert" className="text-caption text-danger">
           포트폴리오를 불러오지 못했어요.
         </p>
@@ -87,7 +87,7 @@ export function PortfolioScreen() {
 
   const { data, meta } = portfolio.data;
   return (
-    <ScreenFrame className="gap-4">
+    <ScreenFrame tabBar className="gap-4">
       <div className="flex h-11 shrink-0 items-center justify-between">
         <h1 className="text-title text-text-strong font-semibold">내 포트폴리오</h1>
         <span className="bg-sub text-caption text-primary rounded-[16px] px-3.5 py-1.5 font-semibold">
