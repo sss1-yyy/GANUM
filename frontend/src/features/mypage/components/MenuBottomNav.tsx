@@ -19,7 +19,7 @@ export function MenuBottomNav() {
   return (
     <nav
       aria-label="하단 메뉴"
-      className="z-10 grid h-16 shrink-0 grid-cols-5 border-t border-[#eeeeee] bg-white"
+      className="border-line bg-surface z-10 grid h-16 shrink-0 grid-cols-5 border-t"
     >
       {tabs.map((tab) => (
         <Link

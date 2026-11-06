@@ -1,11 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { isApiError } from "@/shared/api";
 import { remainingRuns } from "@/shared/api/endpoints";
-import ganumLogo from "../assets/ganum-logo.png";
 import { useMenuOverview } from "../hooks/use-menu-overview";
+import { TopBar } from "@/components/layout/TopBar";
 
 interface MenuItem {
   label: string;
@@ -62,7 +61,7 @@ export function MenuScreen() {
 
   return (
     <div className="bg-surface min-h-dvh">
-      <MenuHeader />
+      <TopBar />
       <main className="flex flex-col gap-6 px-8 pt-2.5 pb-10">
         <h1 className="text-title text-text-strong font-semibold">전체</h1>
         <MenuUserCard overview={overview} planLabel={planLabel} />
@@ -76,58 +75,12 @@ export function MenuScreen() {
             />
           ))}
         </nav>
-        <div className="text-caption text-text-sub flex flex-wrap items-center justify-center gap-x-4 gap-y-2 py-2">
-          <span>로그아웃 · 준비 중</span>
-          <span aria-hidden="true" className="bg-line h-3 w-px" />
-          <span>탈퇴하기 · 준비 중</span>
+        <div className="text-caption text-text-sub flex items-center justify-center gap-4 py-2">
+          <span>로그아웃</span>
+          <span>탈퇴하기</span>
         </div>
       </main>
     </div>
-  );
-}
-
-/** 메뉴 내부 상단 바예요. 공통 레이아웃으로 옮기는 작업은 별도예요. */
-function MenuHeader() {
-  return (
-    <header className="relative flex h-(--top-bar-height) items-center justify-between px-8">
-      <Link
-        href="/home"
-        aria-label="홈으로 돌아가기"
-        className="text-text-sub -ml-2 inline-flex size-11 items-center justify-center rounded-lg"
-      >
-        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="m14 5-7 7 7 7" stroke="currentColor" strokeWidth="1.5" />
-        </svg>
-      </Link>
-      <div className="absolute top-[17px] left-1/2 h-[22px] w-[104px] -translate-x-1/2 overflow-hidden">
-        <Image
-          src={ganumLogo}
-          alt="GANUM"
-          priority
-          className="absolute top-[-61.11%] left-[-11.8%] h-[227.78%] w-[121.32%] max-w-none"
-        />
-      </div>
-      <Link
-        href="/notifications"
-        aria-label="알림 목록"
-        className="text-text-sub -mr-2 inline-flex size-11 items-center justify-center rounded-lg"
-      >
-        <svg
-          aria-hidden="true"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" />
-          <path d="M10 21h4" />
-        </svg>
-      </Link>
-    </header>
   );
 }
 
@@ -168,10 +121,11 @@ function MenuUserCard({ overview, planLabel }: { overview: MenuOverview; planLab
               <p className="text-subtitle text-text-strong font-semibold [overflow-wrap:anywhere]">
                 {user.data.nickname}님
               </p>
-              <p className="text-caption text-text-sub">프로필 · 계정 관리 · 준비 중</p>
+              <p className="text-caption text-text-sub">프로필 · 계정 관리</p>
             </>
           ) : null}
         </div>
+        <ChevronRight />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <SummaryTile
@@ -304,7 +258,7 @@ function MenuSection({
                 className="flex min-h-[52px] items-center justify-between gap-3 py-3.5"
               >
                 <span className="text-text min-w-0 text-sm">{item.label}</span>
-                <span className="text-caption text-text-sub shrink-0">준비 중</span>
+                <ChevronRight />
               </div>
             )}
           </li>
