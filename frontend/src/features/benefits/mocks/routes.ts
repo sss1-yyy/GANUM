@@ -85,7 +85,7 @@ export const benefitsMockRoutes: MockRoute[] = [
       if (status) items = items.filter((b) => b.applicationStatus === status);
       if (matchedOnly === "true")
         items = items.filter((b) => b.eligibilityStatus === "LIKELY_ELIGIBLE");
-      return listOf(items, request);
+      return listOf(items, request, true);
     },
   },
 
