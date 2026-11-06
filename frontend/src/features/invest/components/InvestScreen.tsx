@@ -306,10 +306,7 @@ export function InvestScreen() {
                     <svg
                       aria-hidden
                       viewBox="0 0 24 24"
-                      className={cn(
-                        "size-6",
-                        liked.has(item.id) ? "text-positive" : "text-outline",
-                      )}
+                      className={cn("size-6", liked.has(item.id) ? "text-like" : "text-outline")}
                       fill={liked.has(item.id) ? "currentColor" : "none"}
                       stroke="currentColor"
                       strokeWidth="1.8"

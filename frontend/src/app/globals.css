@@ -17,6 +17,7 @@
   --color-text-sub: #515151;
   --color-text-muted: #a1a1a1;
   --color-positive: #e5484d; /* 상승·이익 (한국식: 빨강) */
+  --color-like: #e5484d; /* 관심(하트) — 지금은 상승 색과 같은 값. 하트 색만 바꿀 땐 여기만 수정 */
   --color-danger: #d92d20; /* 오류 메시지 (상승/하락 색과 구분) */
   --color-negative: #3b82f6; /* 하락·손실 (한국식: 파랑) */
   --color-chip-gray: #eef0f3;
