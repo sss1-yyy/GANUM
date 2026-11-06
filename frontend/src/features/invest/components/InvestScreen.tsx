@@ -110,6 +110,7 @@ export function InvestScreen() {
       <h1 className="text-title text-text-strong font-bold">모의 투자</h1>
 
       {/* 가상 자금 — Figma 금액은 주문 가능 금액(현금) 기준 (docs/figma-api-gaps.md) */}
+      {/* 배경: Figma 가상 자금 카드 그라데이션 (일회성 장식이라 토큰에 없음) */}
       <section className="rounded-card bg-gradient-to-br from-[#efebfd] to-[#e3dcfb] px-5 py-4">
         <p className="text-caption text-text-sub">가상 자금 · 실제 돈이 아니에요</p>
         <p className="text-text-strong mt-1 text-[26px] leading-tight font-bold">
