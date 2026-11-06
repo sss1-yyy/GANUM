@@ -7,9 +7,12 @@
  */
 import { spawnSync } from "node:child_process";
 import { realpathSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const cwd = realpathSync.native(process.cwd());
-const vitest = realpathSync.native("node_modules/vitest/vitest.mjs");
+// 이 파일(frontend/scripts)의 한 단계 위 = frontend 폴더. 어느 폴더에서 실행해도 같은 곳을 가리켜요
+const cwd = realpathSync.native(fileURLToPath(new URL("..", import.meta.url)));
+const vitest = realpathSync.native(join(cwd, "node_modules/vitest/vitest.mjs"));
 
 const result = spawnSync(process.execPath, [vitest, ...process.argv.slice(2)], {
   cwd,
