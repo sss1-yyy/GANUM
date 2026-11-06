@@ -257,7 +257,7 @@ function MenuSection({
                 aria-disabled="true"
                 className="flex min-h-[52px] items-center justify-between gap-3 py-3.5"
               >
-                <span className="text-text min-w-0 text-sm">{item.label}</span>
+                <span className="text-text min-w-0 text-sm font-medium">{item.label}</span>
                 <ChevronRight />
               </div>
             )}
