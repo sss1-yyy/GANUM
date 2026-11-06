@@ -8,8 +8,9 @@ import { getInstrument, getPaperPortfolio } from "@/shared/api/endpoints";
 import { isApiError } from "@/shared/api/error";
 import { createIdempotencyKey } from "@/shared/api/idempotency";
 import { sharedKeys } from "@/shared/api/query-keys";
-import { formatKRW, formatNumber } from "@/shared/lib/format";
-import { placeOrder } from "../api";
+import { cn } from "@/shared/lib/cn";
+import { formatKRW, formatNumber, formatSignedKRW, formatSignedPercent } from "@/shared/lib/format";
+import { investKeys, placeOrder } from "../api";
 import type { OrderSide, PaperOrderResult } from "../types";
 
 /** PAPER-03 오류 코드 → 사용자 안내 문구 (API 명세서 v0.4) */
@@ -47,7 +48,7 @@ export function OrderScreen({ instrumentId, side }: { instrumentId: string; side
       setSheetOpen(false);
       // 체결로 현금·보유가 바뀌었으니 포트폴리오를 다시 불러오게 해요
       void queryClient.invalidateQueries({ queryKey: sharedKeys.paperPortfolio });
-      void queryClient.invalidateQueries({ queryKey: ["paper", "orders"] });
+      void queryClient.invalidateQueries({ queryKey: investKeys.orders });
     },
   });
 
@@ -82,6 +83,8 @@ export function OrderScreen({ instrumentId, side }: { instrumentId: string; side
   const paper = portfolio.data.data;
   const holding = paper.holdings.find((entry) => entry.instrumentId === instrumentId) ?? null;
   const holdingQuantity = holding ? Number(holding.quantity) : 0;
+  // 매도 요약(Figma 매도 화면): 평균 매수가 · 예상 손익 = (현재가 − 평균 매수가) × 수량
+  const averagePrice = holding?.averagePrice ? Number(holding.averagePrice) : null;
 
   const isBuy = side === "BUY";
   const sideLabel = isBuy ? "매수" : "매도";
@@ -90,6 +93,11 @@ export function OrderScreen({ instrumentId, side }: { instrumentId: string; side
   const quantity = /^\d+$/.test(quantityText) ? Number(quantityText) : 0;
   const orderAmount = quantity * item.price;
   const cashAfter = isBuy ? paper.cashBalance - orderAmount : paper.cashBalance + orderAmount;
+  const expectedProfit = averagePrice !== null ? (item.price - averagePrice) * quantity : null;
+  const expectedProfitPercent =
+    averagePrice !== null && averagePrice > 0
+      ? ((item.price - averagePrice) / averagePrice) * 100
+      : null;
   const canSubmit = quantity >= 1 && quantity <= maxQuantity;
 
   // 주문 확인 시트의 "주식 비중" 안내 — 서버 계산이 아니라 화면에서 구한 안내값 (docs/figma-api-gaps.md)
@@ -120,7 +128,7 @@ export function OrderScreen({ instrumentId, side }: { instrumentId: string; side
       <ScreenFrame hideBack className="items-center gap-0 pt-20">
         <span
           aria-hidden
-          className="shadow-ai flex size-24 items-center justify-center rounded-full bg-gradient-to-br from-[#9079f6] to-[#6a4cf0]"
+          className="shadow-ai from-coach to-primary flex size-24 items-center justify-center rounded-full bg-gradient-to-br"
         >
           <svg
             viewBox="0 0 24 24"
@@ -193,19 +201,28 @@ export function OrderScreen({ instrumentId, side }: { instrumentId: string; side
         >
           −
         </button>
-        <input
-          inputMode="numeric"
-          pattern="[0-9]*"
-          placeholder="수량"
-          value={quantityText}
-          onChange={(event) => {
-            const digits = event.target.value.replace(/\D/g, "");
-            setQuantityText(digits.replace(/^0+(?=\d)/, ""));
-            setIdempotencyKey(createIdempotencyKey("paper"));
-            order.reset();
-          }}
-          className="text-text-strong min-w-0 flex-1 px-4 py-3.5 font-semibold outline-none"
-        />
+        {/* Figma: 왼쪽 "수량" 고정 라벨 + 오른쪽 정렬 숫자 + "주" (비어 있으면 "주" 숨김) */}
+        <label className="flex min-w-0 flex-1 items-center gap-2 px-4 py-3.5">
+          <span className="text-text-muted shrink-0">수량</span>
+          <input
+            inputMode="numeric"
+            pattern="[0-9]*"
+            aria-label="수량"
+            value={quantityText}
+            onChange={(event) => {
+              // 버튼과 같은 규칙: 직접 입력도 최대 수량에서 잘리게 해요
+              const digits = event.target.value.replace(/\D/g, "");
+              const clamped = digits === "" ? 0 : Math.min(Number(digits), maxQuantity);
+              setQuantityText(clamped <= 0 ? "" : String(clamped));
+              setIdempotencyKey(createIdempotencyKey("paper"));
+              order.reset();
+            }}
+            className="text-text-strong min-w-0 flex-1 text-right font-semibold outline-none"
+          />
+          {quantityText !== "" && (
+            <span className="text-text-strong shrink-0 font-semibold">주</span>
+          )}
+        </label>
         <button
           type="button"
           aria-label="수량 늘리기"
@@ -224,26 +241,56 @@ export function OrderScreen({ instrumentId, side }: { instrumentId: string; side
       </div>
 
       <p className="text-caption text-text-sub">
-        최대 가능 수량{" "}
+        {isBuy ? "최대 가능 수량" : "보유 수량"}{" "}
         <span className="text-text-strong font-semibold">{formatNumber(maxQuantity)}주</span>
-        {!isBuy && " (보유 수량)"}
       </p>
 
       {/* 주문 금액 요약 */}
+      {/* 주문 요약 — 매수는 금액 중심, 매도는 Figma 매도 화면대로 평균 매수가·예상 손익 */}
       <section className="rounded-card bg-sub/60 p-4">
-        <p className="text-caption text-text-sub">주문 금액</p>
+        <p className="text-caption text-text-sub">{isBuy ? "주문 금액" : "예상 매도 금액"}</p>
         <p className="text-text-strong mt-1 text-[24px] leading-tight font-bold">
           {formatKRW(orderAmount)}
         </p>
         <dl className="border-line mt-3 flex flex-col gap-2 border-t pt-3">
-          <div className="flex items-center justify-between">
-            <dt className="text-text-sub text-[15px]">주문 가능 금액</dt>
-            <dd className="text-text-strong font-semibold">{formatKRW(paper.cashBalance)}</dd>
-          </div>
-          <div className="flex items-center justify-between">
-            <dt className="text-text-sub text-[15px]">주문 후 남는 금액</dt>
-            <dd className="text-text-strong font-semibold">{formatKRW(cashAfter)}</dd>
-          </div>
+          {isBuy ? (
+            <>
+              <div className="flex items-center justify-between">
+                <dt className="text-text-sub text-[15px]">주문 가능 금액</dt>
+                <dd className="text-text-strong font-semibold">{formatKRW(paper.cashBalance)}</dd>
+              </div>
+              <div className="flex items-center justify-between">
+                <dt className="text-text-sub text-[15px]">주문 후 남는 금액</dt>
+                <dd className="text-text-strong font-semibold">{formatKRW(cashAfter)}</dd>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center justify-between">
+                <dt className="text-text-sub text-[15px]">평균 매수가</dt>
+                <dd className="text-text-strong font-semibold">
+                  {averagePrice !== null ? formatKRW(averagePrice) : "-"}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between">
+                <dt className="text-text-sub text-[15px]">예상 손익</dt>
+                <dd
+                  className={cn(
+                    "font-semibold",
+                    expectedProfit !== null && expectedProfit > 0
+                      ? "text-positive"
+                      : expectedProfit !== null && expectedProfit < 0
+                        ? "text-negative"
+                        : "text-text-strong",
+                  )}
+                >
+                  {expectedProfit !== null && quantity >= 1
+                    ? `${formatSignedKRW(expectedProfit)}(${formatSignedPercent(expectedProfitPercent)})`
+                    : "-"}
+                </dd>
+              </div>
+            </>
+          )}
         </dl>
       </section>
 
