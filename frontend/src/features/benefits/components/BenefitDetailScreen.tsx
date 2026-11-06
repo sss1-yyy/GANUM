@@ -137,7 +137,9 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
     const missing = isApiError(query.error) && query.error.status === 404;
     return (
       <ScreenFrame className="gap-3">
-        <p role="alert">{missing ? "혜택을 찾을 수 없어요." : "혜택을 불러오지 못했어요."}</p>
+        <p role="alert" className="text-danger">
+          {missing ? "혜택을 찾을 수 없어요." : "혜택을 불러오지 못했어요."}
+        </p>
         {missing ? (
           <Link href="/benefits" className="text-primary">
             혜택 목록으로
@@ -156,14 +158,18 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
   }
 
   const detail = query.data.data;
+  const isSavings = detail.benefit.category === "SAVING";
   const directUrl = applicationHref(detail.applicationUrl);
 
   return (
     <ScreenFrame className="gap-4">
       <h1 className="text-title text-text-strong font-bold">{detail.benefit.title}</h1>
       <div className="bg-sub rounded-card p-4">
-        <p className="text-caption text-text-sub">{USE_MOCK ? "[예시] 지원 내용" : "지원 내용"}</p>
-        <p className="text-subtitle text-text-strong mt-1 font-bold">{detail.benefit.summary}</p>
+        <p className="text-caption text-text-sub">지원 내용</p>
+        <p className="text-subtitle text-text-strong mt-1 font-bold">
+          {USE_MOCK ? "[예시] " : ""}
+          {detail.benefit.summary}
+        </p>
       </div>
 
       <div
@@ -192,7 +198,7 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
       <div className="bg-surface sticky bottom-0 mt-auto pt-3">
         {detail.institutions.length > 0 ? (
           <button type="button" className={actionClass} onClick={() => sheet.current?.showModal()}>
-            {benefitId === "ben_youth_leap" ? "은행 앱으로 이동" : "신청 기관 보기"}
+            {isSavings ? "은행 앱으로 이동" : "신청 기관 보기"}
           </button>
         ) : directUrl ? (
           <a href={directUrl} className={actionClass}>
@@ -206,12 +212,12 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
       <dialog
         ref={sheet}
         aria-labelledby="benefit-sheet-title"
-        className="bg-surface text-text fixed inset-x-0 top-auto bottom-0 mx-auto my-0 max-h-[85dvh] w-full max-w-(--app-width) overflow-y-auto rounded-t-[24px] p-6 backdrop:bg-black/40"
+        className="bg-surface text-text backdrop:bg-text-strong/40 fixed inset-x-0 top-auto bottom-0 mx-auto my-0 max-h-[85dvh] w-full max-w-(--app-width) overflow-y-auto rounded-t-[24px] p-6"
       >
         <div className="bg-line mx-auto mb-4 h-1 w-10 rounded-full" />
         <div className="flex items-center justify-between gap-3">
           <h2 id="benefit-sheet-title" className="text-subtitle text-text-strong font-bold">
-            {benefitId === "ben_youth_leap" ? "은행을 선택해 주세요" : "신청 기관을 확인해 주세요"}
+            {isSavings ? "은행을 선택해 주세요" : "신청 기관을 확인해 주세요"}
           </h2>
           <form method="dialog">
             <button type="submit" className="text-text-sub px-2 py-1">

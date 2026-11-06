@@ -1,10 +1,12 @@
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import { ScreenFrame } from "@/components/layout/ScreenFrame";
 import { USE_MOCK } from "@/shared/api";
+import { getMe } from "@/shared/api/endpoints";
+import { sharedKeys } from "@/shared/api/query-keys";
 import { cn } from "@/shared/lib/cn";
 import { daysUntil, formatDDay } from "@/shared/lib/format";
 import { referenceDate } from "@/shared/lib/format-time";
@@ -46,6 +48,11 @@ function statusLabel(benefit: Benefit, today: string) {
 
 export function BenefitListScreen() {
   const [filter, setFilter] = useState<Filter>("전체");
+  const { data: me } = useQuery({
+    queryKey: sharedKeys.me,
+    queryFn: getMe,
+  });
+  const nickname = me?.data.nickname.trim();
   const query = useInfiniteQuery({
     queryKey: benefitKeys.list(),
     initialPageParam: null as string | null,
@@ -70,7 +77,9 @@ export function BenefitListScreen() {
         <p role="status">혜택을 불러오고 있어요.</p>
       ) : query.isError && !query.data ? (
         <div className="space-y-2">
-          <p role="alert">혜택을 불러오지 못했어요.</p>
+          <p role="alert" className="text-danger">
+            혜택을 불러오지 못했어요.
+          </p>
           <button type="button" className="text-primary" onClick={() => void query.refetch()}>
             다시 시도
           </button>
@@ -78,7 +87,9 @@ export function BenefitListScreen() {
       ) : (
         <>
           <div className="from-primary to-primary-light text-surface rounded-card bg-linear-to-r p-5">
-            <p className="text-caption">{USE_MOCK ? "[예시] " : ""}청년을 위한 혜택</p>
+            <p className="text-caption">
+              {nickname ? `${nickname}님이 받을 수 있는 혜택` : "청년을 위한 혜택"}
+            </p>
             <p className="text-title mt-1 font-bold">{benefits.length}개의 혜택을 찾았어요</p>
           </div>
 
@@ -115,7 +126,10 @@ export function BenefitListScreen() {
                   >
                     <div className="min-w-0 flex-1">
                       <p className="text-text-strong font-bold">{benefit.title}</p>
-                      <p className="text-caption text-text-sub mt-1">{benefit.summary}</p>
+                      <p className="text-caption text-text-sub mt-1">
+                        {USE_MOCK ? "[예시] " : ""}
+                        {benefit.summary}
+                      </p>
                     </div>
                     <span className="bg-sub text-primary text-caption shrink-0 rounded-full px-2 py-1">
                       {statusLabel(benefit, today)}
@@ -128,7 +142,9 @@ export function BenefitListScreen() {
           )}
 
           {query.isFetchNextPageError && (
-            <p role="alert">다음 혜택을 불러오지 못했어요. 다시 눌러 주세요.</p>
+            <p role="alert" className="text-danger">
+              다음 혜택을 불러오지 못했어요. 다시 눌러 주세요.
+            </p>
           )}
           {query.hasNextPage && (
             <button
