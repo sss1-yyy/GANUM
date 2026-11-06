@@ -1,0 +1,42 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "test: watch (저장할 때마다 자동 재실행)",
+      "type": "shell",
+      "command": "./gradlew test --continuous --console=plain",
+      "windows": { "command": ".\\gradlew.bat test --continuous --console=plain" },
+      "isBackground": true,
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "test: 한 번 실행",
+      "type": "shell",
+      "command": "./gradlew test --console=plain",
+      "windows": { "command": ".\\gradlew.bat test --console=plain" },
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "server: 실행 (H2 · Docker 없이, :8080)",
+      "type": "shell",
+      "command": "./gradlew bootRun --console=plain --args='--spring.profiles.active=h2'",
+      "windows": { "command": ".\\gradlew.bat bootRun --console=plain --args='--spring.profiles.active=h2'" },
+      "isBackground": true,
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    },
+    {
+      "label": "server: 실행 (MySQL 자동 기동, :8080)",
+      "type": "shell",
+      "command": "./gradlew bootRun --console=plain",
+      "windows": { "command": ".\\gradlew.bat bootRun --console=plain" },
+      "isBackground": true,
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    }
+  ]
+}
