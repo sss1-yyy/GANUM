@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { InstrumentLogo } from "@/components/domain/InstrumentLogo";
 import { ScreenFrame } from "@/components/layout/ScreenFrame";
 import { getGoal, getInstruments, getPaperPortfolio } from "@/shared/api/endpoints";
 import { sharedKeys } from "@/shared/api/query-keys";
 import { cn } from "@/shared/lib/cn";
 import { changeTone, formatKRW, formatSignedPercent } from "@/shared/lib/format";
 import type { PaperAllocation } from "@/shared/types";
-import { InstrumentLogo } from "./InstrumentLogo";
 
 /** 메인에 보여줄 종목 수. 전체 목록은 랭킹 화면(/market)에서 봐요 */
 const RANKING_LIMIT = 5;
@@ -285,7 +285,7 @@ export function InvestScreen() {
                     href={`/invest/${item.id}`}
                     className="flex min-w-0 flex-1 items-center gap-3"
                   >
-                    <InstrumentLogo symbol={item.symbol} name={item.name} />
+                    <InstrumentLogo instrumentId={item.id} name={item.name} />
                     <span className="flex min-w-0 flex-col">
                       <span className="text-text-strong truncate font-medium">{item.name}</span>
                       <span className="text-caption">
