@@ -21,6 +21,7 @@ import {
 } from "@/shared/lib/format";
 import { formatAsOf, referenceDate, shiftDate } from "@/shared/lib/format-time";
 import { getPrices, investKeys } from "../api";
+import { TONE_CLASSES, toneClass } from "../lib/tone";
 import type { PricePoint } from "../types";
 
 /**
@@ -35,14 +36,6 @@ const PERIOD_TABS = [
 ] as const;
 
 type PeriodKey = (typeof PERIOD_TABS)[number]["key"];
-
-/** 상승 빨강 · 하락 파랑 · 보합 회색 */
-function toneClass(value: number | null | undefined): string {
-  const tone = changeTone(value);
-  if (tone === "up") return "text-positive";
-  if (tone === "down") return "text-negative";
-  return "text-text-muted";
-}
 
 /** 시가총액·거래대금처럼 큰 금액을 "134.5조 원 / 1,250억 원" 으로 줄여요 */
 function formatCompactKRW(value: number | null): string {
@@ -119,6 +112,11 @@ export function InstrumentDetailScreen({ instrumentId }: { instrumentId: string 
   const holding =
     portfolio.data.data.holdings.find((entry) => entry.instrumentId === instrumentId) ?? null;
   const typeLabel = profile.data?.data?.typeLabel ?? null;
+  // 52주 최고/최저 차이가 30% 이상이면 "변동이 큰 종목"으로 안내해요 (둘 중 하나라도 없으면 일반 안내)
+  const isVolatile =
+    item.high52Week !== null && item.low52Week !== null && item.low52Week > 0
+      ? (item.high52Week - item.low52Week) / item.low52Week >= 0.3
+      : null;
   const pricePoints = prices.data?.data.points ?? [];
   const periodTone: ChangeTone =
     pricePoints.length >= 2
@@ -142,7 +140,7 @@ export function InstrumentDetailScreen({ instrumentId }: { instrumentId: string 
             <svg
               aria-hidden
               viewBox="0 0 24 24"
-              className={cn("size-6", liked ? "text-positive" : "text-outline")}
+              className={cn("size-6", liked ? "text-like" : "text-outline")}
               fill={liked ? "currentColor" : "none"}
               stroke="currentColor"
               strokeWidth="1.8"
@@ -216,12 +214,17 @@ export function InstrumentDetailScreen({ instrumentId }: { instrumentId: string 
       )}
 
       {/* AI 코치 안내 — 문구는 Figma 의 예시 문구예요 (docs/figma-api-gaps.md) */}
-      <section className="rounded-card shadow-ai bg-gradient-to-br from-[#9079f6] to-[#8a70ff] p-4">
+      <section className="rounded-card shadow-ai from-coach to-primary-light bg-gradient-to-br p-4">
         <span className="bg-surface/20 text-surface text-caption inline-block rounded-full px-3 py-1 font-semibold">
           내 성향{typeLabel ? `(${typeLabel})` : ""} 기준
         </span>
+        {/* 52주 고저 폭으로 나누는 간단 안내 — 서버 분석이 아니라 화면 계산 예시예요 */}
         <p className="text-surface mt-2.5 leading-[1.5] font-semibold">
-          변동이 큰 종목이에요.
+          {isVolatile === null
+            ? "투자 전에 가격 변동 폭을 함께 살펴보세요."
+            : isVolatile
+              ? "변동이 큰 종목이에요."
+              : "변동이 비교적 완만한 종목이에요."}
           <br />
           전체 자산의 10% 이하로 시작해 보세요.
         </p>
@@ -335,8 +338,6 @@ function PriceChart({ points, tone }: { points: PricePoint[]; tone: ChangeTone }
   const area = `M ${coords.map((coord) => `${coord.x},${coord.y}`).join(" L ")} L ${
     coords[coords.length - 1].x
   },${height} L ${coords[0].x},${height} Z`;
-  const color = tone === "up" ? "#e5484d" : tone === "down" ? "#3b82f6" : "#a1a1a1";
-
   // x축 날짜 라벨은 5개만 고르게 보여줘요
   const labelCount = Math.min(5, points.length);
   const labels = Array.from({ length: labelCount }, (_, index) => {
@@ -350,15 +351,15 @@ function PriceChart({ points, tone }: { points: PricePoint[]; tone: ChangeTone }
       <svg
         viewBox={`0 0 ${width} ${height}`}
         preserveAspectRatio="none"
-        className="h-[150px] w-full"
+        className={cn("h-[150px] w-full", TONE_CLASSES[tone])}
         role="img"
         aria-label="기간별 종가 차트"
       >
-        <path d={area} fill={color} opacity={0.08} />
+        <path d={area} fill="currentColor" opacity={0.08} />
         <polyline
           points={line}
           fill="none"
-          stroke={color}
+          stroke="currentColor"
           strokeWidth={1.6}
           strokeLinejoin="round"
           strokeLinecap="round"
