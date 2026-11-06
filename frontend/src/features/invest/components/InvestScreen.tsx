@@ -99,11 +99,11 @@ export function InvestScreen() {
 
   const paper = portfolio.data.data;
   const goalData = goal.data?.data ?? null;
-  // Figma 문구 그대로 "가상 자금(현금) ÷ 목표" 로 계산해요 (docs/figma-api-gaps.md)
+  // 총 평가금액 ÷ 목표로 계산해요 — 매수·매도로 현금이 움직여도 진행률은 그대로예요 (docs/figma-api-gaps.md)
   const goalPercent = goalData
-    ? Math.min(100, Math.round((paper.cashBalance / goalData.targetAmount) * 100))
+    ? Math.min(100, Math.round((paper.totalValue / goalData.targetAmount) * 100))
     : 0;
-  const goalRemaining = goalData ? Math.max(0, goalData.targetAmount - paper.cashBalance) : 0;
+  const goalRemaining = goalData ? Math.max(0, goalData.targetAmount - paper.totalValue) : 0;
 
   return (
     <ScreenFrame className="gap-4">

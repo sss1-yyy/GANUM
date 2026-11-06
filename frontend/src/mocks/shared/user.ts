@@ -28,16 +28,16 @@ export const MOCK_ASSET_SUMMARY: AssetSummary = {
   connectionStatus: "CONNECTED",
 };
 
-/** 금융 목표 (GOAL-01). Figma 모의투자 화면의 "목표 15,000,000원" 을 사용합니다. */
+/** 금융 목표 (GOAL-01). 진행률 67%를 맞추려고 목표 27,000,000원 사용 — Figma 표기는 15,000,000원 (docs/figma-api-gaps.md) */
 export function getMockGoal(): Goal | null {
   return mockState<{ goal: Goal | null }>("goal", () => ({
     goal: {
       id: "goal_demo_01",
       title: "목돈 만들기",
-      targetAmount: 15_000_000,
+      targetAmount: 27_000_000,
       targetDate: mockDateAfter(365),
-      currentAmount: 10_034_002,
-      progressPercent: 66.9,
+      currentAmount: 18_172_002,
+      progressPercent: 67.3,
     },
   })).goal;
 }
