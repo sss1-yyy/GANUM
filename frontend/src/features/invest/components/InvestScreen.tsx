@@ -135,7 +135,7 @@ export function InvestScreen() {
             onClick={() => void goal.refetch()}
             className="rounded-button bg-sub px-4 py-1.5"
           >
-            <span className="text-caption text-primary font-semibold">다시 시도</span>
+            <span className="text-caption text-primary font-semibold">다시 시도하기</span>
           </button>
         </section>
       )}
