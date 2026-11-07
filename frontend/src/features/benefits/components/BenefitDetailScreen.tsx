@@ -33,6 +33,14 @@ function applicationHref(value: string | null) {
   }
 }
 
+function eligibilityIcon(reason: string) {
+  // [명세 외] BENEFIT-02는 이유별 상태를 제공하지 않아요. 응답에 명시된 경우만 표시해요.
+  const text = reason.trim().replace(/[.!?]+$/, "");
+  if (text.endsWith("→ 충족해요")) return "✓";
+  if (text.endsWith("확인이 필요해요")) return "⚠";
+  return null;
+}
+
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="bg-surface shadow-card rounded-card space-y-3 p-4">
@@ -44,19 +52,33 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 function DetailContent({ tab, detail }: { tab: (typeof TABS)[number]; detail: BenefitDetail }) {
   switch (tab) {
-    case "내 자격":
+    case "내 자격": {
+      const { status, reasons, missingFields } = detail.eligibility;
+      const hasDetails = reasons.length > 0 || missingFields.length > 0;
+
       return (
         <Section title="나는 받을 수 있을까?">
-          <p className="text-primary font-semibold">
-            {eligibilityLabels[detail.eligibility.status]}
+          <p className={hasDetails ? "sr-only" : "text-primary font-semibold"}>
+            {eligibilityLabels[status]}
           </p>
           <ul className="space-y-2 text-sm">
-            {detail.eligibility.reasons.map((reason, index) => (
-              <li key={index}>{reason}</li>
-            ))}
-            {detail.eligibility.missingFields.map((field, index) => (
+            {reasons.map((reason, index) => {
+              const icon = eligibilityIcon(reason);
+              return (
+                <li key={index} className="flex items-start gap-2">
+                  <span
+                    aria-hidden="true"
+                    className={cn("w-4 shrink-0", icon === "⚠" ? "text-danger" : "text-primary")}
+                  >
+                    {icon}
+                  </span>
+                  <span>{reason}</span>
+                </li>
+              );
+            })}
+            {missingFields.map((field, index) => (
               <li key={`missing-${index}`} className="flex items-start gap-2">
-                <span aria-hidden="true" className="text-danger shrink-0">
+                <span aria-hidden="true" className="text-danger w-4 shrink-0">
                   ⚠
                 </span>
                 <span>{field} 정보를 확인해 주세요.</span>
@@ -65,6 +87,7 @@ function DetailContent({ tab, detail }: { tab: (typeof TABS)[number]; detail: Be
           </ul>
         </Section>
       );
+    }
 
     case "상세 정보":
       return (
@@ -94,14 +117,31 @@ function DetailContent({ tab, detail }: { tab: (typeof TABS)[number]; detail: Be
         </>
       );
 
-    case "신청 방법":
+    case "신청 방법": {
+      const usesBankApp = detail.applicationSteps.some((step) => step.startsWith("은행 앱 접속:"));
+
       return (
         <>
           <Section title="신청 방법">
-            {detail.institutions.length > 0 && (
-              <p className="bg-sub text-text-sub rounded-card px-3 py-2 text-sm">
-                아래 버튼을 눌러 신청 기관을 확인해 주세요.
+            {usesBankApp ? (
+              <p className="bg-sub text-primary rounded-card px-3 py-2 text-sm font-semibold">
+                신청은 은행 앱에서 해요.
               </p>
+            ) : (
+              detail.institutions.length > 0 && (
+                <p className="bg-sub text-text-sub rounded-card px-3 py-2 text-sm">
+                  아래 버튼을 눌러 신청 기관을 확인해 주세요.
+                </p>
+              )
+            )}
+            {/* [명세 외] 소요 시간과 비대면 여부는 시연 디자인에만 있어요. */}
+            {USE_MOCK && usesBankApp && (
+              <ul aria-label="신청 안내" className="flex flex-wrap gap-2">
+                <li className="bg-sub text-primary text-caption rounded-full px-3 py-1">약 10분</li>
+                <li className="bg-sub text-primary text-caption rounded-full px-3 py-1">
+                  비대면 가능
+                </li>
+              </ul>
             )}
             {detail.applicationSteps.length > 0 ? (
               <ol className="list-decimal space-y-3 pl-5 text-sm">
@@ -147,6 +187,7 @@ function DetailContent({ tab, detail }: { tab: (typeof TABS)[number]; detail: Be
           )}
         </>
       );
+    }
   }
 }
 
@@ -192,6 +233,10 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
 
   const detail = query.data.data;
   const isSavings = detail.benefit.category === "SAVING";
+  const summary = detail.benefit.summary;
+  // [명세 외] 가입 기간은 전용 필드가 없어 명시된 상품 정보에서만 표시해요.
+  const term = /(?:^|·\s*)가입 기간\s+([^·]+)/.exec(detail.supportDescription)?.[1].trim();
+  const hasMonthlyTerm = isSavings && summary.startsWith("월 ") && Boolean(term);
   const directUrl = applicationHref(detail.applicationUrl);
   const hasInstitutionLink = detail.institutions.some(({ applicationUrl }) =>
     Boolean(applicationHref(applicationUrl)),
@@ -201,10 +246,11 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
     <ScreenFrame className="gap-4">
       <h1 className="text-title text-text-strong font-bold">{detail.benefit.title}</h1>
       <div className="bg-sub rounded-card p-4">
-        <p className="text-caption text-text-sub">지원 내용</p>
+        <p className="text-caption text-text-sub">
+          {hasMonthlyTerm ? "월 납입 · 기간" : "지원 내용"}
+        </p>
         <p className="text-subtitle text-text-strong mt-1 font-bold">
-          {USE_MOCK ? "[예시] " : ""}
-          {detail.benefit.summary}
+          {hasMonthlyTerm ? `${summary} · ${term}` : summary}
         </p>
       </div>
 
@@ -271,14 +317,19 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
             {isSavings ? "은행을 선택해 주세요" : "신청 기관을 확인해 주세요"}
           </h2>
           <form method="dialog">
-            <button type="submit" className="text-text-sub px-2 py-1">
+            <button
+              type="submit"
+              className="text-text-sub sr-only focus-visible:not-sr-only focus-visible:px-2 focus-visible:py-1"
+            >
               닫기
             </button>
           </form>
         </div>
 
         <p id="benefit-sheet-description" className="text-caption text-text-sub mt-1">
-          {detail.benefit.title} 신청 기관 {detail.institutions.length}곳이에요.
+          {isSavings
+            ? `${detail.benefit.title}를 판매하는 은행 ${detail.institutions.length}곳이에요.`
+            : `${detail.benefit.title} 신청 기관 ${detail.institutions.length}곳이에요.`}
         </p>
 
         <ul className="mt-4 grid grid-cols-3 gap-3">
@@ -303,11 +354,11 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
             );
           })}
         </ul>
-        {hasInstitutionLink && (
-          <p className="text-caption text-text-sub mt-4">
-            신청 링크가 있는 기관을 선택하면 신청 페이지로 이동해요.
-          </p>
-        )}
+        <p className="text-caption text-text-sub mt-4">
+          {hasInstitutionLink
+            ? "신청 링크가 있는 기관을 선택하면 신청 페이지로 이동해요."
+            : "등록된 신청 링크가 없어요."}
+        </p>
       </dialog>
     </ScreenFrame>
   );

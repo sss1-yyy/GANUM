@@ -4,7 +4,6 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 import { ScreenFrame } from "@/components/layout/ScreenFrame";
-import { USE_MOCK } from "@/shared/api";
 import { getMe } from "@/shared/api/endpoints";
 import { sharedKeys } from "@/shared/api/query-keys";
 import { cn } from "@/shared/lib/cn";
@@ -36,13 +35,13 @@ const categoryIconPaths = {
   주거: "m3 11 9-8 9 8 M5 10v11h14V10 M10 21v-6h4v6",
   교통: "M5 7h14v11H5z M5 11h14 M8 18v3m8-3v3 M8 15h.01M16 15h.01",
   문화: "m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z",
+  기타: "M4 11h16v10H4z M3 7h18v4H3z M12 7v14 M12 7H8.5A2.5 2.5 0 1 1 11 4.5L12 7Zm0 0h3.5A2.5 2.5 0 1 0 13 4.5L12 7Z",
 } as const;
 
 const iconCategories = ["저축", "주거", "교통", "문화"] as const;
 
 function BenefitCategoryIcon({ benefit }: { benefit: Benefit }) {
-  const category = iconCategories.find((option) => matchesFilter(benefit, option));
-  if (!category) return null;
+  const category = iconCategories.find((option) => matchesFilter(benefit, option)) ?? "기타";
 
   return (
     <span className="bg-sub text-primary flex size-10 shrink-0 items-center justify-center rounded-full">
@@ -158,10 +157,7 @@ export function BenefitListScreen() {
                     <BenefitCategoryIcon benefit={benefit} />
                     <div className="min-w-0 flex-1">
                       <p className="text-text-strong font-bold">{benefit.title}</p>
-                      <p className="text-caption text-text-sub mt-1">
-                        {USE_MOCK ? "[예시] " : ""}
-                        {benefit.summary}
-                      </p>
+                      <p className="text-caption text-text-sub mt-1">{benefit.summary}</p>
                     </div>
                     <span className="bg-sub text-primary text-caption shrink-0 rounded-full px-2 py-1">
                       {statusLabel(benefit, today)}
