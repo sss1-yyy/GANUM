@@ -46,16 +46,21 @@ function DetailContent({ tab, detail }: { tab: (typeof TABS)[number]; detail: Be
   switch (tab) {
     case "내 자격":
       return (
-        <Section title="나는 받을 수 있을까요?">
+        <Section title="나는 받을 수 있을까?">
           <p className="text-primary font-semibold">
             {eligibilityLabels[detail.eligibility.status]}
           </p>
-          <ul className="list-disc space-y-2 pl-5 text-sm">
+          <ul className="space-y-2 text-sm">
             {detail.eligibility.reasons.map((reason, index) => (
               <li key={index}>{reason}</li>
             ))}
             {detail.eligibility.missingFields.map((field, index) => (
-              <li key={`missing-${index}`}>{field} 정보를 확인해 주세요.</li>
+              <li key={`missing-${index}`} className="flex items-start gap-2">
+                <span aria-hidden="true" className="text-danger shrink-0">
+                  ⚠
+                </span>
+                <span>{field} 정보를 확인해 주세요.</span>
+              </li>
             ))}
           </ul>
         </Section>
@@ -93,11 +98,25 @@ function DetailContent({ tab, detail }: { tab: (typeof TABS)[number]; detail: Be
       return (
         <>
           <Section title="신청 방법">
+            {detail.institutions.length > 0 && (
+              <p className="bg-sub text-text-sub rounded-card px-3 py-2 text-sm">
+                아래 버튼을 눌러 신청 기관을 확인해 주세요.
+              </p>
+            )}
             {detail.applicationSteps.length > 0 ? (
               <ol className="list-decimal space-y-3 pl-5 text-sm">
-                {detail.applicationSteps.map((step, index) => (
-                  <li key={index}>{step}</li>
-                ))}
+                {detail.applicationSteps.map((step, index) => {
+                  const separator = step.indexOf(":");
+                  const title = separator > 0 ? step.slice(0, separator).trim() : step;
+                  const description = separator > 0 ? step.slice(separator + 1).trim() : "";
+
+                  return (
+                    <li key={index}>
+                      <p className="text-text-strong font-semibold">{title}</p>
+                      {description && <p className="text-text-sub mt-1">{description}</p>}
+                    </li>
+                  );
+                })}
               </ol>
             ) : (
               <p className="text-text-sub text-sm">등록된 신청 방법이 없어요.</p>
@@ -105,10 +124,24 @@ function DetailContent({ tab, detail }: { tab: (typeof TABS)[number]; detail: Be
           </Section>
           {detail.requiredDocuments.length > 0 && (
             <Section title="미리 준비하면 편해요">
-              <ul className="list-disc space-y-2 pl-5 text-sm">
-                {detail.requiredDocuments.map((document, index) => (
-                  <li key={index}>{document}</li>
-                ))}
+              <ul className="space-y-2 text-sm">
+                {detail.requiredDocuments.map((document, index) => {
+                  const match = /^(.+?)\s*\(([^()]+)\)\s*$/.exec(document);
+                  const name = match?.[1].trim() ?? document;
+                  const purpose = match?.[2].trim();
+
+                  return (
+                    <li key={index} className="flex items-start gap-2">
+                      <span aria-hidden="true" className="text-primary shrink-0">
+                        ✓
+                      </span>
+                      <span className="min-w-0 flex-1">{name}</span>
+                      {purpose && (
+                        <span className="text-text-sub max-w-1/2 text-right">{purpose}</span>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </Section>
           )}
@@ -160,6 +193,9 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
   const detail = query.data.data;
   const isSavings = detail.benefit.category === "SAVING";
   const directUrl = applicationHref(detail.applicationUrl);
+  const hasInstitutionLink = detail.institutions.some(({ applicationUrl }) =>
+    Boolean(applicationHref(applicationUrl)),
+  );
 
   return (
     <ScreenFrame className="gap-4">
@@ -212,6 +248,21 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
       <dialog
         ref={sheet}
         aria-labelledby="benefit-sheet-title"
+        aria-describedby="benefit-sheet-description"
+        onPointerDown={(event) => {
+          const dialog = event.currentTarget;
+          if (event.target !== dialog || event.button !== 0) return;
+
+          const bounds = dialog.getBoundingClientRect();
+          if (
+            event.clientX < bounds.left ||
+            event.clientX >= bounds.right ||
+            event.clientY < bounds.top ||
+            event.clientY >= bounds.bottom
+          ) {
+            dialog.close();
+          }
+        }}
         className="bg-surface text-text backdrop:bg-text-strong/40 fixed inset-x-0 top-auto bottom-0 mx-auto my-0 max-h-[85dvh] w-full max-w-(--app-width) overflow-y-auto rounded-t-[24px] p-6"
       >
         <div className="bg-line mx-auto mb-4 h-1 w-10 rounded-full" />
@@ -225,6 +276,10 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
             </button>
           </form>
         </div>
+
+        <p id="benefit-sheet-description" className="text-caption text-text-sub mt-1">
+          {detail.benefit.title} 신청 기관 {detail.institutions.length}곳이에요.
+        </p>
 
         <ul className="mt-4 grid grid-cols-3 gap-3">
           {detail.institutions.map((institution) => {
@@ -248,6 +303,11 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
             );
           })}
         </ul>
+        {hasInstitutionLink && (
+          <p className="text-caption text-text-sub mt-4">
+            신청 링크가 있는 기관을 선택하면 신청 페이지로 이동해요.
+          </p>
+        )}
       </dialog>
     </ScreenFrame>
   );

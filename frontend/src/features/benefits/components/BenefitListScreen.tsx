@@ -31,6 +31,37 @@ function matchesFilter(benefit: Benefit, filter: Filter) {
   }
 }
 
+const categoryIconPaths = {
+  저축: "M7 11V8a5 5 0 0 1 10 0v3 M6 11h12v10H6z M12 15v2",
+  주거: "m3 11 9-8 9 8 M5 10v11h14V10 M10 21v-6h4v6",
+  교통: "M5 7h14v11H5z M5 11h14 M8 18v3m8-3v3 M8 15h.01M16 15h.01",
+  문화: "m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z",
+} as const;
+
+const iconCategories = ["저축", "주거", "교통", "문화"] as const;
+
+function BenefitCategoryIcon({ benefit }: { benefit: Benefit }) {
+  const category = iconCategories.find((option) => matchesFilter(benefit, option));
+  if (!category) return null;
+
+  return (
+    <span className="bg-sub text-primary flex size-10 shrink-0 items-center justify-center rounded-full">
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.75}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="size-5"
+      >
+        <path d={categoryIconPaths[category]} />
+      </svg>
+    </span>
+  );
+}
+
 function statusLabel(benefit: Benefit, today: string) {
   switch (benefit.applicationStatus) {
     case "ALWAYS":
@@ -124,6 +155,7 @@ export function BenefitListScreen() {
                     href={`/benefits/${encodeURIComponent(benefit.id)}`}
                     className="bg-surface shadow-card rounded-card flex items-center gap-3 p-4"
                   >
+                    <BenefitCategoryIcon benefit={benefit} />
                     <div className="min-w-0 flex-1">
                       <p className="text-text-strong font-bold">{benefit.title}</p>
                       <p className="text-caption text-text-sub mt-1">
@@ -134,7 +166,18 @@ export function BenefitListScreen() {
                     <span className="bg-sub text-primary text-caption shrink-0 rounded-full px-2 py-1">
                       {statusLabel(benefit, today)}
                     </span>
-                    <span aria-hidden="true">›</span>
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-text-sub size-4 shrink-0"
+                    >
+                      <path d="m9 6 6 6-6 6" />
+                    </svg>
                   </Link>
                 </li>
               ))}
