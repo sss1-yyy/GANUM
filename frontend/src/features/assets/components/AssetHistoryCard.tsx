@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { USE_MOCK } from "@/shared/api/config";
 import { getAssetHistory } from "@/shared/api/endpoints";
 import { sharedKeys } from "@/shared/api/query-keys";
 import { formatKRW, formatMonthDay } from "@/shared/lib/format";
@@ -18,7 +17,7 @@ export function AssetHistoryCard({ to }: { to: string }) {
 
   return (
     <section className="rounded-card bg-surface shadow-card space-y-3 p-4">
-      <h2 className="font-semibold">{USE_MOCK ? "[예시] 자산 추이" : "자산 추이"}</h2>
+      <h2 className="font-semibold">자산 추이</h2>
       <p className="text-caption text-text-sub">최근 90일 총자산</p>
 
       {history.isPending && <p role="status">자산 추이를 불러오고 있어요.</p>}

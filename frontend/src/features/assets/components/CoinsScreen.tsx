@@ -2,10 +2,23 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { ScreenFrame } from "@/components/layout/ScreenFrame";
-import { USE_MOCK } from "@/shared/api/config";
 import { cn } from "@/shared/lib/cn";
-import { changeTone, formatKRW, formatSignedKRW, formatSignedPercent } from "@/shared/lib/format";
+import { changeTone, formatKRW, formatSignedPercent } from "@/shared/lib/format";
 import { assetKeys, getCrypto } from "../api";
+import { AssetSummaryCard } from "./AssetSummaryCard";
+import Image, { type StaticImageData } from "next/image";
+import btcIcon from "../assets/coin-btc.svg";
+import ethIcon from "../assets/coin-eth.svg";
+import solIcon from "../assets/coin-sol.svg";
+import xrpIcon from "../assets/coin-xrp.svg";
+import defaultCoinIcon from "../assets/investment-coins.svg";
+
+const coinIcons = new Map<string, StaticImageData>([
+  ["BTC", btcIcon],
+  ["ETH", ethIcon],
+  ["XRP", xrpIcon],
+  ["SOL", solIcon],
+]);
 
 export function CoinsScreen() {
   const coins = useQuery({
@@ -33,35 +46,38 @@ export function CoinsScreen() {
 
       {detail && (
         <>
-          <section className="rounded-card bg-primary text-surface p-4">
-            <h2>{USE_MOCK ? "[예시] 코인 총 자산" : "코인 총 자산"}</h2>
-            <p className="mt-2 text-2xl font-bold">{formatKRW(detail.totalAmount)}</p>
-            {detail.monthlyChangeAmount !== null && (
-              <p className="text-caption mt-2">
-                지난달 대비 {formatSignedKRW(detail.monthlyChangeAmount)}
-              </p>
-            )}
-          </section>
+          <AssetSummaryCard
+            title="코인 총 자산"
+            totalAmount={detail.totalAmount}
+            monthlyChangeAmount={detail.monthlyChangeAmount}
+          />
 
           <section className="rounded-card bg-surface shadow-card space-y-3 p-4">
             <h2 className="font-semibold">보유 코인</h2>
             {detail.items.length === 0 ? (
               <p className="text-caption text-text-sub">보유한 코인이 없어요.</p>
             ) : (
-              <ul className="space-y-3">
+              <ul className="space-y-6">
                 {detail.items.map((item) => {
                   const tone = changeTone(item.changePercent);
 
                   return (
                     <li key={item.id} className="flex items-center justify-between gap-3">
-                      <div>
+                      <Image
+                        src={coinIcons.get(item.symbol) ?? defaultCoinIcon}
+                        alt=""
+                        width={40}
+                        height={40}
+                        className="shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
                         <p className="font-semibold">{item.name}</p>
                         <p className="text-caption text-text-sub">
                           {item.quantity} {item.symbol}
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p>{formatKRW(item.amount)}</p>
+                        <p className="font-semibold">{formatKRW(item.amount)}</p>
                         <p
                           className={cn(
                             "text-caption",

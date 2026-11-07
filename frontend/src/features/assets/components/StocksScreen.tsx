@@ -3,10 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { InstrumentLogo } from "@/components/domain/InstrumentLogo";
 import { ScreenFrame } from "@/components/layout/ScreenFrame";
-import { USE_MOCK } from "@/shared/api/config";
 import { cn } from "@/shared/lib/cn";
-import { changeTone, formatKRW, formatSignedKRW, formatSignedPercent } from "@/shared/lib/format";
+import { changeTone, formatKRW, formatSignedPercent } from "@/shared/lib/format";
 import { assetKeys, getAssetHoldings } from "../api";
+import { AssetSummaryCard } from "./AssetSummaryCard";
+import Image from "next/image";
+import hanmiLogo from "../assets/stock-hanmi.svg";
 
 export function StocksScreen() {
   const holdings = useQuery({
@@ -38,35 +40,43 @@ export function StocksScreen() {
 
       {detail && (
         <>
-          <section className="rounded-card bg-primary text-surface p-4">
-            <h2>
-              {USE_MOCK && "[예시] "}
-              {detail.nextCursor === null ? "총 평가금액" : "표시된 종목 평가금액"}
-            </h2>
-            <p className="mt-2 text-2xl font-bold">{formatKRW(total)}</p>
-            {hasProfitLoss && (
-              <p className="text-caption mt-2">평가 손익 {formatSignedKRW(profitLoss)}</p>
-            )}
-          </section>
+          <AssetSummaryCard
+            title={detail.nextCursor === null ? "총 평가금" : "표시된 종목 평가금액"}
+            totalAmount={total}
+            monthlyChangeAmount={null}
+            profitLossAmount={hasProfitLoss ? profitLoss : null}
+          />
 
           <section className="rounded-card bg-surface shadow-card space-y-3 p-4">
-            <h2 className="font-semibold">보유 종목</h2>
+            <h2 className="font-semibold">주식</h2>
             {items.length === 0 ? (
               <p className="text-caption text-text-sub">보유한 종목이 없어요.</p>
             ) : (
-              <ul className="space-y-3">
+              <ul className="space-y-6">
                 {items.map((item) => {
                   const tone = changeTone(item.profitLossPercent);
 
                   return (
                     <li key={item.instrumentId} className="flex items-center gap-3">
-                      <InstrumentLogo instrumentId={item.instrumentId} name={item.name} />
+                      {item.instrumentId === "ins_042700" ? (
+                        <span className="bg-surface shadow-card relative size-10 shrink-0 rounded-full">
+                          <Image
+                            src={hanmiLogo}
+                            alt=""
+                            width={34}
+                            height={21}
+                            className="absolute top-[9.29px] left-[3.57px] h-auto w-[34.13px]"
+                          />
+                        </span>
+                      ) : (
+                        <InstrumentLogo instrumentId={item.instrumentId} name={item.name} />
+                      )}
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold">{item.name}</p>
                         <p className="text-caption text-text-sub">{item.quantity}주</p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p>{formatKRW(item.marketValue)}</p>
+                        <p className="font-semibold">{formatKRW(item.marketValue)}</p>
                         <p
                           className={cn(
                             "text-caption",

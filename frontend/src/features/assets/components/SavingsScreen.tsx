@@ -2,9 +2,21 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { ScreenFrame } from "@/components/layout/ScreenFrame";
-import { USE_MOCK } from "@/shared/api/config";
-import { formatKRW } from "@/shared/lib/format";
+import { formatKRW, formatManWon, formatPercent } from "@/shared/lib/format";
 import { assetKeys, getSavings } from "../api";
+import { AssetSummaryCard } from "./AssetSummaryCard";
+import Image, { type StaticImageData } from "next/image";
+import depositIcon from "../assets/savings-lock.svg";
+import sproutIcon from "../assets/savings-sprout.svg";
+import piggyIcon from "../assets/savings-piggy.svg";
+import shieldIcon from "../assets/savings-shield.svg";
+
+const savingsIcons = new Map<string, StaticImageData>([
+  ["sav_leap", sproutIcon],
+  ["sav_deposit", depositIcon],
+  ["sav_free", piggyIcon],
+  ["sav_emergency", shieldIcon],
+]);
 
 export function SavingsScreen() {
   const savings = useQuery({
@@ -32,33 +44,39 @@ export function SavingsScreen() {
 
       {detail && (
         <>
-          <section className="rounded-card bg-primary text-surface p-4">
-            <h2>{USE_MOCK ? "[예시] 예적금 총 자산" : "예적금 총 자산"}</h2>
-            <p className="mt-2 text-2xl font-bold">{formatKRW(detail.totalAmount)}</p>
-            {detail.monthlyChangeAmount !== null && (
-              <p className="text-caption mt-2">
-                지난달 대비 {detail.monthlyChangeAmount > 0 ? "+" : ""}
-                {formatKRW(detail.monthlyChangeAmount)}
-              </p>
-            )}
-          </section>
+          <AssetSummaryCard
+            title="예적금 총 자산"
+            totalAmount={detail.totalAmount}
+            monthlyChangeAmount={detail.monthlyChangeAmount}
+          />
 
           <section className="rounded-card bg-surface shadow-card space-y-3 p-4">
-            <h2 className="font-semibold">예적금 상품</h2>
+            <h2 className="font-semibold">예적금</h2>
             {detail.items.length === 0 ? (
               <p className="text-caption text-text-sub">연결된 예적금이 없어요.</p>
             ) : (
-              <ul className="space-y-3">
+              <ul className="space-y-6">
                 {detail.items.map((item) => (
-                  <li key={item.id} className="flex items-center justify-between gap-2">
-                    <div>
+                  <li key={item.id} className="flex items-center justify-between gap-3">
+                    <Image
+                      src={savingsIcons.get(item.id) ?? depositIcon}
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
                       <p className="font-semibold">{item.name}</p>
                       <p className="text-caption text-text-sub">
-                        연 {item.interestRate}%
-                        {item.termMonths !== null && ` · ${item.termMonths}개월`}
+                        {item.monthlyDeposit !== null &&
+                          `월 ${formatManWon(item.monthlyDeposit)} · `}
+                        연 {formatPercent(item.interestRate, 1)}
+                        {item.monthlyDeposit === null &&
+                          item.termMonths !== null &&
+                          ` · ${item.termMonths}개월`}
                       </p>
                     </div>
-                    <span className="shrink-0">{formatKRW(item.balance)}</span>
+                    <span className="shrink-0 font-semibold">{formatKRW(item.balance)}</span>
                   </li>
                 ))}
               </ul>

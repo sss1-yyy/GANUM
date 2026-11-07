@@ -1,4 +1,3 @@
-import { USE_MOCK } from "@/shared/api/config";
 import { formatPercent } from "@/shared/lib/format";
 import type { AssetCategorySummary, AssetCategoryType } from "@/shared/types";
 
@@ -25,10 +24,10 @@ export function AssetAllocationCard({ categories }: { categories: AssetCategoryS
 
   return (
     <section className="rounded-card bg-surface shadow-card space-y-3 p-4">
-      <h2 className="font-semibold">{USE_MOCK ? "[예시] 자산 배분" : "자산 배분"}</h2>
+      <h2 className="font-semibold">자산 배분</h2>
 
       {segments.length === 0 ? (
-        <p className="text-caption text-text-sub">표시할 자산 배분이 없어요.</p>
+        <p className="text-caption text-text-sub">자산을 연결하면 비율을 보여드려요</p>
       ) : (
         <div className="flex items-center gap-4">
           <svg aria-hidden="true" viewBox="0 0 100 100" className="size-24 shrink-0">
@@ -58,7 +57,7 @@ export function AssetAllocationCard({ categories }: { categories: AssetCategoryS
                   style={{ backgroundColor: categoryStyles[type].color }}
                 />
                 <span className="flex-1">{categoryStyles[type].label}</span>
-                <span className="font-semibold">{formatPercent(weightPercent)}</span>
+                <span className="font-semibold">{formatPercent(weightPercent, 0)}</span>
               </li>
             ))}
           </ul>

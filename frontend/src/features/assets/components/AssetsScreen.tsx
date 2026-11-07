@@ -3,17 +3,31 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { ScreenFrame } from "@/components/layout/ScreenFrame";
-import { USE_MOCK } from "@/shared/api/config";
-import { formatKRW, formatSignedKRW } from "@/shared/lib/format";
+import { formatKRW } from "@/shared/lib/format";
 import { assetKeys, connectAssets, getAccounts, getAssetSummary } from "../api";
 import { referenceDate } from "@/shared/lib/format-time";
 import { AssetAllocationCard } from "./AssetAllocationCard";
 import { AssetHistoryCard } from "./AssetHistoryCard";
+import { AssetSummaryCard } from "./AssetSummaryCard";
+import Image, { type StaticImageData } from "next/image";
+import investmentChevron from "../assets/investment-chevron-right.svg";
+import savingsIcon from "../assets/investment-savings.svg";
+import stocksIcon from "../assets/investment-stocks.svg";
+import coinsIcon from "../assets/investment-coins.svg";
+import kakaoBankIcon from "../assets/account-kakaobank.svg";
+import tossBankIcon from "../assets/account-tossbank.svg";
+import hanaBankIcon from "../assets/account-hanabank.svg";
+
+const bankIcons = new Map<string, StaticImageData>([
+  ["카카오뱅크", kakaoBankIcon],
+  ["토스뱅크", tossBankIcon],
+  ["하나은행", hanaBankIcon],
+]);
 
 const investmentLinks = [
-  { label: "예적금", href: "/assets/savings", categories: ["DEPOSIT"] },
-  { label: "증권", href: "/assets/stocks", categories: ["STOCK", "ETF"] },
-  { label: "코인", href: "/assets/coins", categories: ["CRYPTO"] },
+  { label: "예적금", href: "/assets/savings", categories: ["DEPOSIT"], icon: savingsIcon },
+  { label: "증권", href: "/assets/stocks", categories: ["STOCK", "ETF"], icon: stocksIcon },
+  { label: "코인", href: "/assets/coins", categories: ["CRYPTO"], icon: coinsIcon },
 ] as const;
 
 const accountGroups = [
@@ -53,7 +67,9 @@ export function AssetsScreen() {
 
       {summary.isError && (
         <div>
-          <p role="alert">자산 정보를 불러오지 못했어요.</p>
+          <p role="alert" className="text-danger">
+            자산 정보를 불러오지 못했어요.
+          </p>
           <button type="button" onClick={() => void summary.refetch()}>
             다시 시도하기
           </button>
@@ -62,7 +78,9 @@ export function AssetsScreen() {
 
       {assets && !isConnected && (
         <section className="rounded-card bg-sub space-y-3 p-4">
-          <p className="text-text-strong font-semibold">내 금융정보를 한곳에 모아 정리해요.</p>
+          <p className="text-text-strong font-semibold">
+            내 금융정보를 한곳에 모아 자동으로 정리해요
+          </p>
           <button
             type="button"
             disabled={connection.isPending}
@@ -80,15 +98,11 @@ export function AssetsScreen() {
       )}
 
       {assets && isConnected && (
-        <section className="rounded-card bg-primary text-surface p-4">
-          <h2>{USE_MOCK ? "[예시] 내 총 자산" : "내 총 자산"}</h2>
-          <p className="mt-2 text-2xl font-bold">{formatKRW(assets.totalAssets)}</p>
-          {assets.monthlyChangeAmount !== null && (
-            <p className="text-caption mt-2">
-              지난달 대비 {formatSignedKRW(assets.monthlyChangeAmount)}
-            </p>
-          )}
-        </section>
+        <AssetSummaryCard
+          title="내 총 자산"
+          totalAmount={assets.totalAssets}
+          monthlyChangeAmount={assets.monthlyChangeAmount}
+        />
       )}
 
       {isConnected && <AssetHistoryCard to={referenceDate(summary.data?.meta?.asOf)} />}
@@ -97,7 +111,7 @@ export function AssetsScreen() {
 
       {assets && (
         <section className="rounded-card bg-surface shadow-card space-y-4 p-4">
-          <h2 className="text-text-strong font-semibold">{USE_MOCK ? "[예시] 계좌" : "계좌"}</h2>
+          <h2 className="text-text-strong font-semibold">계좌</h2>
 
           {isConnected && accounts.isPending && <p role="status">계좌를 불러오고 있어요.</p>}
 
@@ -125,20 +139,47 @@ export function AssetsScreen() {
                   </div>
 
                   {items.length === 0 ? (
-                    <p className="text-caption text-text-sub mt-2">연결된 계좌가 없어요.</p>
+                    <div className="text-caption text-text-sub mt-2 flex items-center gap-2">
+                      <span aria-hidden="true" className="bg-line size-10 shrink-0 rounded-full" />
+                      <span className="flex-1">연결된 계좌가 없어요</span>
+                      <span className="shrink-0">--원</span>
+                    </div>
                   ) : (
-                    <ul className="mt-2 space-y-2">
-                      {items.map((account) => (
-                        <li key={account.id} className="flex items-center justify-between gap-2">
-                          <div>
-                            <p>{account.institution}</p>
-                            <p className="text-caption text-text-sub">{account.name}</p>
-                          </div>
-                          <span className="shrink-0 font-semibold">
-                            {formatKRW(account.balance)}
-                          </span>
-                        </li>
-                      ))}
+                    <ul className="mt-2 space-y-6">
+                      {items.map((account) => {
+                        const icon =
+                          account.type === "STOCK"
+                            ? stocksIcon
+                            : bankIcons.get(account.institution);
+
+                        return (
+                          <li key={account.id} className="flex items-center justify-between gap-3">
+                            {icon ? (
+                              <Image
+                                src={icon}
+                                alt=""
+                                width={40}
+                                height={40}
+                                className="shrink-0 rounded-full"
+                              />
+                            ) : (
+                              <span
+                                aria-hidden="true"
+                                className="bg-line size-10 shrink-0 rounded-full"
+                              />
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p>{account.type === "STOCK" ? account.name : account.institution}</p>
+                              <p className="text-caption text-text-sub">
+                                {account.type === "STOCK" ? "주식" : account.name}
+                              </p>
+                            </div>
+                            <span className="shrink-0 font-semibold">
+                              {formatKRW(account.balance)}
+                            </span>
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </div>
@@ -149,9 +190,10 @@ export function AssetsScreen() {
 
       {assets && (
         <section className="rounded-card bg-surface shadow-card space-y-3 p-4">
-          <h2 className="font-semibold">{USE_MOCK && isConnected ? "[예시] 투자" : "투자"}</h2>
+          <h2 className="font-semibold">투자</h2>
+          <p className="text-caption text-text-sub">투자 자산 3개를 한눈에 확인해요</p>
 
-          {investmentLinks.map(({ label, href, categories }) => {
+          {investmentLinks.map(({ label, href, categories, icon }) => {
             const amount = isConnected
               ? assets.categories.reduce(
                   (sum, category) =>
@@ -164,11 +206,12 @@ export function AssetsScreen() {
               <Link
                 key={href}
                 href={href}
-                className="rounded-button bg-sub flex items-center gap-2 p-3"
+                className="rounded-button bg-bg flex items-center gap-3 p-3"
               >
+                <Image src={icon} alt="" width={32} height={32} className="shrink-0" />
                 <span className="flex-1">{label}</span>
-                <span className="font-semibold">{formatKRW(amount)}</span>
-                <span aria-hidden="true">›</span>
+                <span className="shrink-0 font-semibold">{formatKRW(amount)}</span>
+                <Image src={investmentChevron} alt="" width={6} height={10} className="shrink-0" />
               </Link>
             );
           })}
