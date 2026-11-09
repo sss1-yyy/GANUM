@@ -17,7 +17,7 @@ import { ScreenFrame } from "@/components/layout/ScreenFrame";
 
 export function ReportListScreen() {
   return (
-    <ScreenFrame className="gap-4">
+    <ScreenFrame tabBar className="gap-4">
       <h1 className="text-title text-text-strong font-semibold">내 레포트</h1>
       <NewReportHero />
       <PreviousReports />
