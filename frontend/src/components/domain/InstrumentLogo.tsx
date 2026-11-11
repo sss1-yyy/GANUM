@@ -4,6 +4,7 @@ import samsungWordmark from "./assets/logos/samsung-wordmark.svg";
 import skBg from "./assets/logos/sk-bg.svg";
 import skMark1 from "./assets/logos/sk-mark-1.svg";
 import skMark2 from "./assets/logos/sk-mark-2.svg";
+import hanmiLogo from "./assets/logos/hanmi.svg";
 
 /**
  * 종목 로고 (40px 원). API 에 로고가 없어서 Figma 에 그려진 4개 종목만 Figma 그대로 보여주고,
@@ -11,6 +12,21 @@ import skMark2 from "./assets/logos/sk-mark-2.svg";
  */
 export function InstrumentLogo({ instrumentId, name }: { instrumentId: string; name: string }) {
   switch (instrumentId) {
+    case "ins_042700":
+      return (
+        <span
+          aria-hidden
+          className="bg-surface shadow-card relative size-10 shrink-0 overflow-hidden rounded-full"
+        >
+          <Image
+            src={hanmiLogo}
+            alt=""
+            width={34}
+            height={21}
+            className="absolute top-[9.29px] left-[3.57px] h-auto w-[34.13px] max-w-none"
+          />
+        </span>
+      );
     case "ins_000660":
       return (
         <span aria-hidden className="relative size-10 shrink-0 overflow-hidden rounded-full">
