@@ -5,9 +5,7 @@ import Link from "next/link";
 import { ScreenFrame } from "@/components/layout/ScreenFrame";
 import { formatKRW } from "@/shared/lib/format";
 import { assetKeys, connectAssets, getAccounts, getAssetSummary } from "../api";
-import { referenceDate } from "@/shared/lib/format-time";
 import { AssetAllocationCard } from "./AssetAllocationCard";
-import { AssetHistoryCard } from "./AssetHistoryCard";
 import { AssetSummaryCard } from "./AssetSummaryCard";
 import Image, { type StaticImageData } from "next/image";
 import investmentChevron from "../assets/investment-chevron-right.svg";
@@ -60,7 +58,7 @@ export function AssetsScreen() {
   const accountItems = isConnected ? accounts.data?.data.items : [];
 
   return (
-    <ScreenFrame className="gap-4">
+    <ScreenFrame tabBar className="gap-4">
       <h1 className="text-title text-text-strong font-semibold">내 자산</h1>
 
       {summary.isPending && <p role="status">자산 정보를 불러오고 있어요.</p>}
@@ -104,8 +102,6 @@ export function AssetsScreen() {
           monthlyChangeAmount={assets.monthlyChangeAmount}
         />
       )}
-
-      {isConnected && <AssetHistoryCard to={referenceDate(summary.data?.meta?.asOf)} />}
 
       {assets && isConnected && <AssetAllocationCard categories={assets.categories} />}
 

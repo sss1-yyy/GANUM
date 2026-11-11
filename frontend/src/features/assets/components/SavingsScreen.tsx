@@ -5,18 +5,18 @@ import { ScreenFrame } from "@/components/layout/ScreenFrame";
 import { formatKRW, formatManWon, formatPercent } from "@/shared/lib/format";
 import { assetKeys, getSavings } from "../api";
 import { AssetSummaryCard } from "./AssetSummaryCard";
-import Image, { type StaticImageData } from "next/image";
+import Image from "next/image";
 import depositIcon from "../assets/savings-lock.svg";
 import sproutIcon from "../assets/savings-sprout.svg";
 import piggyIcon from "../assets/savings-piggy.svg";
 import shieldIcon from "../assets/savings-shield.svg";
 
-const savingsIcons = new Map<string, StaticImageData>([
-  ["sav_leap", sproutIcon],
-  ["sav_deposit", depositIcon],
-  ["sav_free", piggyIcon],
-  ["sav_emergency", shieldIcon],
-]);
+function savingsIcon(name: string) {
+  if (name.includes("도약")) return sproutIcon;
+  if (name.includes("비상금")) return shieldIcon;
+  if (name.includes("적금")) return piggyIcon;
+  return depositIcon;
+}
 
 export function SavingsScreen() {
   const savings = useQuery({
@@ -26,7 +26,7 @@ export function SavingsScreen() {
   const detail = savings.data?.data;
 
   return (
-    <ScreenFrame className="gap-4">
+    <ScreenFrame tabBar className="gap-4">
       <h1 className="text-title text-text-strong font-semibold">예적금</h1>
 
       {savings.isPending && <p role="status">예적금 정보를 불러오고 있어요.</p>}
@@ -59,7 +59,7 @@ export function SavingsScreen() {
                 {detail.items.map((item) => (
                   <li key={item.id} className="flex items-center justify-between gap-3">
                     <Image
-                      src={savingsIcons.get(item.id) ?? depositIcon}
+                      src={savingsIcon(item.name)}
                       alt=""
                       width={40}
                       height={40}

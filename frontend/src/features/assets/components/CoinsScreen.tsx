@@ -28,7 +28,7 @@ export function CoinsScreen() {
   const detail = coins.data?.data;
 
   return (
-    <ScreenFrame className="gap-4">
+    <ScreenFrame tabBar className="gap-4">
       <h1 className="text-title text-text-strong font-semibold">코인</h1>
 
       {coins.isPending && <p role="status">코인 정보를 불러오고 있어요.</p>}

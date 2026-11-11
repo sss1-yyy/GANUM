@@ -7,8 +7,6 @@ import { cn } from "@/shared/lib/cn";
 import { changeTone, formatKRW, formatSignedPercent } from "@/shared/lib/format";
 import { assetKeys, getAssetHoldings } from "../api";
 import { AssetSummaryCard } from "./AssetSummaryCard";
-import Image from "next/image";
-import hanmiLogo from "../assets/stock-hanmi.svg";
 
 export function StocksScreen() {
   const holdings = useQuery({
@@ -22,7 +20,7 @@ export function StocksScreen() {
   const hasProfitLoss = items.length > 0 && items.every((item) => item.profitLoss !== null);
 
   return (
-    <ScreenFrame className="gap-4">
+    <ScreenFrame tabBar className="gap-4">
       <h1 className="text-title text-text-strong font-semibold">증권</h1>
 
       {holdings.isPending && <p role="status">증권 정보를 불러오고 있어요.</p>}
@@ -58,19 +56,7 @@ export function StocksScreen() {
 
                   return (
                     <li key={item.instrumentId} className="flex items-center gap-3">
-                      {item.instrumentId === "ins_042700" ? (
-                        <span className="bg-surface shadow-card relative size-10 shrink-0 rounded-full">
-                          <Image
-                            src={hanmiLogo}
-                            alt=""
-                            width={34}
-                            height={21}
-                            className="absolute top-[9.29px] left-[3.57px] h-auto w-[34.13px]"
-                          />
-                        </span>
-                      ) : (
-                        <InstrumentLogo instrumentId={item.instrumentId} name={item.name} />
-                      )}
+                      <InstrumentLogo instrumentId={item.instrumentId} name={item.name} />
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold">{item.name}</p>
                         <p className="text-caption text-text-sub">{item.quantity}주</p>
