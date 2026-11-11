@@ -167,7 +167,7 @@ function Result({ profile }: { profile: InvestmentProfile }) {
         <Link href="/diagnosis/quiz" className={ctaClass()}>
           다시 진단하기
         </Link>
-        <Link href="/home" replace className={ctaClass("secondary")}>
+        <Link href="/diagnosis/home" replace className={ctaClass("secondary")}>
           진단 끝내기
         </Link>
       </div>
