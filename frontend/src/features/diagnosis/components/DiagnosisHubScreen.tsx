@@ -150,7 +150,8 @@ function ProfileCard({ profile, nickname }: { profile: InvestmentProfile; nickna
         <p className="text-text text-[14px] leading-6 tracking-[-0.35px]">{view.tagline}</p>
       </div>
       <Link
-        href="/report"
+        // "레포트 보기"는 AI 레포트가 아니라 내 진단 결과 화면이에요
+        href="/diagnosis/result"
         className="text-caption text-primary flex shrink-0 items-center gap-1 leading-[19px] font-medium"
       >
         레포트 보기
