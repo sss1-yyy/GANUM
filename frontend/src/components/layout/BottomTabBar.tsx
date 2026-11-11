@@ -25,7 +25,7 @@ const TABS: Tab[] = [
     label: "투자",
     href: "/invest",
     icon: investIcon,
-    paths: ["/invest", "/portfolio", "/report", "/simulation"],
+    paths: ["/invest", "/portfolio", "/report", "/simulation", "/diagnosis"],
   },
   { label: "혜택", href: "/benefits", icon: benefitsIcon, paths: ["/benefits"] },
   { label: "전체", href: "/menu", icon: menuIcon, paths: ["/menu"] },
