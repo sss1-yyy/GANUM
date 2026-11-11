@@ -1,93 +1,104 @@
 import type { InvestmentType, Question } from "../types";
 
 /**
- * 진단 문항 8개 (목데이터).
- * 1·2·8번은 Figma 문항 그대로이고, 3~7번은 Figma 디자인이 없어 목데이터로 채웠습니다.
- * 실제 문항·채점 기준은 팀에서 확정해야 합니다. (API 명세 §12 "최종 문항·채점 기준")
+ * 진단 문항 8개 (목데이터). 정기회의6 "투자진단성향 데이터" 문항·채점 기준 그대로예요.
+ * 실제 문항·채점은 서버가 정해요. (API 명세 §12 "최종 문항·채점 기준")
  */
-export const MOCK_QUESTIONNAIRE_VERSION = "mock-2026-10-v1";
+export const MOCK_QUESTIONNAIRE_VERSION = "mock-2026-11-v2";
+
+/** 4개 축. 문항 2개씩, 점수 합이 + 면 앞 글자, - 면 뒤 글자예요 */
+type Axis = "IE" | "SN" | "TF" | "JP";
 
 interface Draft {
+  axis: Axis;
   text: string;
   hint?: string;
-  /** 선택지 4개 (위에서부터) 와 각각이 가리키는 성향 */
-  options: Array<[string, InvestmentType]>;
+  /** 선택지 4개 (위에서부터). 점수는 차례로 +2, +1, -1, -2 */
+  options: [string, string, string, string];
 }
+
+const OPTION_SCORES = [2, 1, -1, -2] as const;
 
 const DRAFTS: Draft[] = [
   {
-    text: "투자금이 10% 줄어들면?",
+    axis: "IE",
+    text: "월급 외에 100만 원이 생겼어요. 어떻게 할까요?",
     hint: "정답은 없어요. 편하게 골라주세요",
     options: [
-      ["당황스럽지만, 일단 지켜본다", "BALANCED"],
-      ["추가로 더 투자할 기회를 찾아본다", "BOLD"],
-      ["손실을 줄이기 위해 바로 정리한다", "CAUTIOUS"],
-      ["그때그때 상황을 보고 결정한다", "FREE"],
+      "전부 원금이 보장되는 예금·적금에 넣는다",
+      "대부분 안전하게 두고, 일부만 투자한다",
+      "대부분 투자하고, 일부만 안전하게 둔다",
+      "전부 투자한다",
     ],
   },
   {
-    text: "투자를 하려는 가장 큰 이유는?",
-    hint: "가장 가까운 걸 하나만 골라주세요",
+    axis: "IE",
+    text: "내 투자금이 한 달 만에 10% 줄었어요. 어떻게 할까요?",
     options: [
-      ["원금을 지키면서 조금씩 불리고 싶다", "CAUTIOUS"],
-      ["은행 이자보다 더 벌고 싶다", "BALANCED"],
-      ["큰 수익을 노려보고 싶다", "BOLD"],
-      ["그때그때 목적이 달라진다", "FREE"],
+      "불안해서 바로 팔고 싶다",
+      "걱정돼서 투자 비중을 줄일지 고민한다",
+      "더 살 기회인지 살펴본다",
+      "싸졌다고 생각하고 추가로 산다",
     ],
   },
   {
-    text: "투자 기간은 어느 정도로 생각하세요?",
+    axis: "SN",
+    text: "이번 달 여윳돈 30만 원이 생겼어요. 어디에 쓸까요?",
     options: [
-      ["1년 미만", "CAUTIOUS"],
-      ["1~3년", "BALANCED"],
-      ["3년 이상", "BOLD"],
-      ["정해두지 않았어요", "FREE"],
+      "지금 하고 싶은 일에 전부 쓴다",
+      "대부분 쓰고, 조금만 모아 둔다",
+      "대부분 모으고, 조금만 쓴다",
+      "미래를 위해 전부 모은다",
     ],
   },
   {
-    text: "월급이 들어오면 가장 먼저 하는 일은?",
+    axis: "SN",
+    text: "투자 목표를 세운다면 언제를 기준으로 잡을까요?",
     options: [
-      ["비상금부터 채워요", "CAUTIOUS"],
-      ["저축과 소비를 나눠요", "BALANCED"],
-      ["투자 계좌로 옮겨요", "BOLD"],
-      ["그때 기분대로 써요", "FREE"],
+      "올해 안에 쓸 여행·취미 자금",
+      "1~2년 안에 쓸 목돈",
+      "5~10년 뒤의 목표",
+      "10년 이상 걸리는 노후·큰 목표",
     ],
   },
   {
-    text: "투자 정보는 주로 어디서 얻나요?",
+    axis: "TF",
+    text: "투자 방법을 고를 때 어느 쪽이 더 끌리나요?",
     options: [
-      ["은행·증권사 공식 자료", "CAUTIOUS"],
-      ["뉴스와 전문가 의견", "BALANCED"],
-      ["커뮤니티와 SNS", "BOLD"],
-      ["주변 사람의 이야기", "FREE"],
+      "오랫동안 많은 사람이 써 온 방법만 쓴다",
+      "검증된 방법을 주로 쓰고, 가끔 새로운 걸 본다",
+      "새로운 방법을 주로 쓰고, 검증된 방법도 섞는다",
+      "새롭고 실험적인 방법을 먼저 써 본다",
     ],
   },
   {
-    text: "한 종목이 하루에 -5% 떨어졌다면?",
+    axis: "TF",
+    text: "친구가 요즘 뜨는 새로운 투자 방식을 알려줬어요. 어떻게 할까요?",
     options: [
-      ["불안해서 바로 확인해요", "CAUTIOUS"],
-      ["이유를 찾아본 뒤 결정해요", "BALANCED"],
-      ["싸게 살 기회라고 생각해요", "BOLD"],
-      ["신경 쓰지 않아요", "FREE"],
+      "몇 년 더 지켜보고 검증된 뒤에 생각한다",
+      "후기와 실적을 충분히 확인한 뒤에 한다",
+      "바로 알아보고 일부 금액으로 시작한다",
+      "바로 시작한다",
     ],
   },
   {
-    text: "투자 경험은 어느 정도예요?",
+    axis: "JP",
+    text: "투자를 시작하기 전에 어떻게 준비하나요?",
     options: [
-      ["거의 없어요", "CAUTIOUS"],
-      ["예적금·펀드 정도", "BALANCED"],
-      ["주식을 직접 해봤어요", "BOLD"],
-      ["여러 가지를 조금씩 해봤어요", "FREE"],
+      "목표, 금액, 기간, 그만둘 기준까지 미리 정해 둔다",
+      "큰 틀은 정하고 세부 내용도 꽤 정해 둔다",
+      "대략만 정하고 시작한다",
+      "일단 시작하고 하면서 정한다",
     ],
   },
   {
-    text: "다음 중 마음에 드는 결과는?",
-    hint: "실제 돈이라고 생각하고 골라주세요",
+    axis: "JP",
+    text: "시장이 갑자기 크게 흔들렸어요. 어떻게 대응할까요?",
     options: [
-      ["1년 뒤 +3%, 손실은 거의 없다", "CAUTIOUS"],
-      ["1년 뒤 +8% 또는 −8%", "BALANCED"],
-      ["1년 뒤 +20% 또는 −20%", "BOLD"],
-      ["그때그때 달라질 것 같다", "FREE"],
+      "처음 세운 계획을 그대로 지킨다",
+      "계획은 지키되, 조금만 조정한다",
+      "상황을 보고 계획을 많이 바꾼다",
+      "계획보다 그때그때 새로 판단한다",
     ],
   },
 ];
@@ -97,61 +108,192 @@ export const MOCK_QUESTIONS: Question[] = DRAFTS.map((draft, index) => ({
   order: index + 1,
   text: draft.text,
   ...(draft.hint ? { hint: draft.hint } : {}),
-  options: draft.options.map(([text], optionIndex) => ({
+  options: draft.options.map((text, optionIndex) => ({
     id: `q${index + 1}_o${optionIndex + 1}`,
     text,
   })),
 }));
 
-/** "q3_o2" → 해당 선택지가 가리키는 성향 (없으면 null) */
-export function optionType(questionId: string, optionId: string): InvestmentType | null {
+/** "q3_o2" → 그 선택지의 축과 점수 (없으면 null) */
+export function optionScore(
+  questionId: string,
+  optionId: string,
+): { axis: Axis; score: number } | null {
   const index = MOCK_QUESTIONS.findIndex((q) => q.id === questionId);
   const draft = DRAFTS[index];
   if (!draft) return null;
   const optionIndex = MOCK_QUESTIONS[index]!.options.findIndex((o) => o.id === optionId);
-  return draft.options[optionIndex]?.[1] ?? null;
+  const score = OPTION_SCORES[optionIndex];
+  return score === undefined ? null : { axis: draft.axis, score };
 }
 
-/** 성향별 설명·가이드. (Figma 설명 문구를 참고했지만 최종 문구는 기획 확정 필요) */
-export const TYPE_COPY: Record<
-  InvestmentType,
-  { label: string; description: string; guides: string[] }
+/**
+ * 축별 점수 합 → 4글자 유형 코드 (예: "ISTJ").
+ * 합이 0 이면 앞 글자(I·S·T·J)로 정해요. Notion 기준에 동점 규칙이 없어 목에서 임시로 정한 값이에요.
+ */
+export function typeCode(sums: Record<Axis, number>): MbtiCode {
+  const pick = (axis: Axis) => (sums[axis] >= 0 ? axis[0] : axis[1]);
+  return `${pick("IE")}${pick("SN")}${pick("TF")}${pick("JP")}` as MbtiCode;
+}
+
+export type MbtiCode =
+  | "ISTJ"
+  | "ISTP"
+  | "INTJ"
+  | "INTP"
+  | "ISFJ"
+  | "INFJ"
+  | "ESTJ"
+  | "ENTJ"
+  | "ISFP"
+  | "INFP"
+  | "ESTP"
+  | "ENTP"
+  | "ESFJ"
+  | "ESFP"
+  | "ENFJ"
+  | "ENFP";
+
+/** 캐릭터(성향) 이름 */
+export const TYPE_LABEL: Record<InvestmentType, string> = {
+  CAUTIOUS: "신중형",
+  BALANCED: "균형형",
+  BOLD: "도전형",
+  FREE: "자유형",
+};
+
+/**
+ * 캐릭터별 행동가이드 (임시). 유형별 행동가이드 목데이터를 받으면
+ * 아래 MBTI_COPY 의 guides 를 유형마다 바꿔 주세요.
+ */
+const CHARACTER_GUIDES: Record<InvestmentType, string[]> = {
+  CAUTIOUS: [
+    "비상금을 먼저 채워요",
+    "예적금 비중을 높게 유지해요",
+    "한 번에 큰 금액을 넣지 않아요",
+  ],
+  BALANCED: [
+    "자산을 여러 곳에 나눠요",
+    "정기적으로 비중을 점검해요",
+    "수익 목표와 손실 한도를 정해요",
+  ],
+  BOLD: ["손실 한도를 미리 정해요", "한 종목에 집중하지 않아요", "충동적인 추가 매수를 조심해요"],
+  FREE: [
+    "나만의 투자 원칙을 한 줄로 적어요",
+    "기록을 남겨 패턴을 살펴봐요",
+    "정기 점검일을 정해요",
+  ],
+};
+
+/** 16유형 → 캐릭터·별명·설명·행동가이드 (정기회의6 "투자진단성향 데이터") */
+export const MBTI_COPY: Record<
+  MbtiCode,
+  { type: InvestmentType; nickname: string; description: string; guides: string[] }
 > = {
-  CAUTIOUS: {
-    label: "신중형",
-    description: "원금을 지키는 것이 가장 중요한 안정 추구형이에요. 흔들림이 적은 선택을 좋아해요.",
-    guides: [
-      "비상금을 먼저 채워요",
-      "예적금 비중을 높게 유지해요",
-      "한 번에 큰 금액을 넣지 않아요",
-    ],
+  // 신중형: 안정(I)과 검증된 방법(T)을 모두 선택
+  ISTJ: {
+    type: "CAUTIOUS",
+    nickname: "잇티제",
+    description: "현재의 안정을 계획적으로 관리하는 유형이에요.",
+    guides: CHARACTER_GUIDES.CAUTIOUS,
   },
-  BALANCED: {
-    label: "균형형",
-    description: "안정과 수익 사이에서 균형을 맞추는 유형이에요. 근거를 확인하고 나눠서 투자해요.",
-    guides: [
-      "자산을 여러 곳에 나눠요",
-      "정기적으로 비중을 점검해요",
-      "수익 목표와 손실 한도를 정해요",
-    ],
-  },
-  BOLD: {
-    label: "도전형",
+  ISTP: {
+    type: "CAUTIOUS",
+    nickname: "잇티피",
     description:
-      "더 높은 수익을 위해 변동성을 감수할 수 있는 유형이에요. 기회를 적극적으로 찾아요.",
-    guides: [
-      "손실 한도를 미리 정해요",
-      "한 종목에 집중하지 않아요",
-      "충동적인 추가 매수를 조심해요",
-    ],
+      "현재의 안정을 검증된 방법으로 지키되, 상황이 바뀌면 유연하게 대응하는 유형이에요.",
+    guides: CHARACTER_GUIDES.CAUTIOUS,
   },
-  FREE: {
-    label: "자유형",
-    description: "상황에 맞춰 유연하게 판단하는 유형이에요. 나만의 기준을 만들면 더 좋아요.",
-    guides: [
-      "나만의 투자 원칙을 한 줄로 적어요",
-      "기록을 남겨 패턴을 살펴봐요",
-      "정기 점검일을 정해요",
-    ],
+  INTJ: {
+    type: "CAUTIOUS",
+    nickname: "인티제",
+    description: "미래의 안정을 체계적으로 준비하는 유형이에요.",
+    guides: CHARACTER_GUIDES.CAUTIOUS,
+  },
+  INTP: {
+    type: "CAUTIOUS",
+    nickname: "인티피",
+    description:
+      "미래의 안정을 검증된 방법으로 준비하되, 상황에 따라 유연하게 조정하는 유형이에요.",
+    guides: CHARACTER_GUIDES.CAUTIOUS,
+  },
+
+  // 균형형: 안정과 성장 중 한쪽만 기울고, 계획(J)으로 균형
+  ISFJ: {
+    type: "BALANCED",
+    nickname: "잇프제",
+    description: "현재의 안정을 지키면서 새로운 방법을 계획 안에서 조금씩 시도하는 유형이에요.",
+    guides: CHARACTER_GUIDES.BALANCED,
+  },
+  INFJ: {
+    type: "BALANCED",
+    nickname: "인프제",
+    description: "미래를 위해 안정을 지키면서 새로운 방법을 계획적으로 시도하는 유형이에요.",
+    guides: CHARACTER_GUIDES.BALANCED,
+  },
+  ESTJ: {
+    type: "BALANCED",
+    nickname: "엣티제",
+    description: "현재의 성과를 검증된 방식으로 만들어가는 유형이에요.",
+    guides: CHARACTER_GUIDES.BALANCED,
+  },
+  ENTJ: {
+    type: "BALANCED",
+    nickname: "엔티제",
+    description: "장기적인 성장을 계획적으로 추진하는 유형이에요.",
+    guides: CHARACTER_GUIDES.BALANCED,
+  },
+
+  // 자유형: 한쪽으로 기울지만 상황에 따라 유연하게(P)
+  ISFP: {
+    type: "FREE",
+    nickname: "잇프피",
+    description: "안정은 중시하지만 새로운 선택에는 유연한 유형이에요.",
+    guides: CHARACTER_GUIDES.FREE,
+  },
+  INFP: {
+    type: "FREE",
+    nickname: "인프피",
+    description: "미래를 준비하면서 새로운 가능성을 탐색하는 유형이에요.",
+    guides: CHARACTER_GUIDES.FREE,
+  },
+  ESTP: {
+    type: "FREE",
+    nickname: "엣티피",
+    description:
+      "현재의 수익 기회를 검증된 방법으로 살피되, 상황에 맞춰 빠르게 움직이는 유형이에요.",
+    guides: CHARACTER_GUIDES.FREE,
+  },
+  ENTP: {
+    type: "FREE",
+    nickname: "엔티피",
+    description: "미래의 성장을 노리면서 상황에 따라 방향을 유연하게 바꾸는 유형이에요.",
+    guides: CHARACTER_GUIDES.FREE,
+  },
+
+  // 도전형: 성장(E)과 새로운 방법(F)을 모두 선택
+  ESFJ: {
+    type: "BOLD",
+    nickname: "엣프제",
+    description: "현재의 수익을 새로운 방법으로, 계획을 세워 추구하는 유형이에요.",
+    guides: CHARACTER_GUIDES.BOLD,
+  },
+  ESFP: {
+    type: "BOLD",
+    nickname: "엣프피",
+    description: "현재의 투자 기회를 적극적으로 잡는 유형이에요.",
+    guides: CHARACTER_GUIDES.BOLD,
+  },
+  ENFJ: {
+    type: "BOLD",
+    nickname: "엔프제",
+    description: "미래의 성장을 새로운 방법으로, 계획을 세워 추진하는 유형이에요.",
+    guides: CHARACTER_GUIDES.BOLD,
+  },
+  ENFP: {
+    type: "BOLD",
+    nickname: "엔프피",
+    description: "미래의 새로운 가능성에 과감하게 투자하는 유형이에요.",
+    guides: CHARACTER_GUIDES.BOLD,
   },
 };

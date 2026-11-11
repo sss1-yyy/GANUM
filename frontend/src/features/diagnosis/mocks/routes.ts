@@ -4,11 +4,14 @@ import { nextMockId } from "@/mocks/store";
 import { profileState } from "@/mocks/shared/user";
 import type { MockRoute } from "@/mocks/types";
 import type { InvestmentProfile } from "@/shared/types";
-import type { InvestmentType } from "../types";
-import { MOCK_QUESTIONNAIRE_VERSION, MOCK_QUESTIONS, TYPE_COPY, optionType } from "./questionnaire";
-
-/** 동점이면 앞에 있는 성향이 이깁니다. (실제 채점 기준은 서버가 정함) */
-const TIE_ORDER: InvestmentType[] = ["BALANCED", "CAUTIOUS", "BOLD", "FREE"];
+import {
+  MBTI_COPY,
+  MOCK_QUESTIONNAIRE_VERSION,
+  MOCK_QUESTIONS,
+  TYPE_LABEL,
+  optionScore,
+  typeCode,
+} from "./questionnaire";
 
 export const diagnosisMockRoutes: MockRoute[] = [
   // PROFILE-01
@@ -37,31 +40,30 @@ export const diagnosisMockRoutes: MockRoute[] = [
 
       const answers = body.answers as Array<{ questionId?: string; optionId?: string }>;
       const seen = new Set<string>();
-      const counts: Record<InvestmentType, number> = { CAUTIOUS: 0, BALANCED: 0, BOLD: 0, FREE: 0 };
+      // 축별 점수 합 (선택지 점수 +2·+1·-1·-2 를 문항 2개씩 더해요)
+      const sums = { IE: 0, SN: 0, TF: 0, JP: 0 };
       for (const answer of answers) {
-        const type =
+        const scored =
           answer.questionId && answer.optionId
-            ? optionType(answer.questionId, answer.optionId)
+            ? optionScore(answer.questionId, answer.optionId)
             : null;
-        if (!answer.questionId || type === null || seen.has(answer.questionId)) {
+        if (!answer.questionId || scored === null || seen.has(answer.questionId)) {
           return fail(422, "INVALID_ANSWERS", "답변이 올바르지 않아요.");
         }
         seen.add(answer.questionId);
-        counts[type] += 1;
+        sums[scored.axis] += scored.score;
       }
       if (seen.size !== MOCK_QUESTIONS.length) {
         return fail(422, "INVALID_ANSWERS", "모든 문항에 답해 주세요.");
       }
 
-      const type = TIE_ORDER.reduce((best, candidate) =>
-        counts[candidate] > counts[best] ? candidate : best,
-      );
-      const copy = TYPE_COPY[type];
+      // 4글자 유형(예: ESFJ) → 캐릭터(신중형·균형형·자유형·도전형)
+      const copy = MBTI_COPY[typeCode(sums)];
       const profile: InvestmentProfile = {
         id: nextMockId("profile"),
         questionnaireVersion: MOCK_QUESTIONNAIRE_VERSION,
-        type,
-        typeLabel: copy.label,
+        type: copy.type,
+        typeLabel: TYPE_LABEL[copy.type],
         description: copy.description,
         guides: copy.guides,
         createdAt: MOCK_NOW,

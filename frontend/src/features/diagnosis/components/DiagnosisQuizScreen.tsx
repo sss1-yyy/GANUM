@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScreenFrame } from "@/components/layout/ScreenFrame";
 import { isApiError } from "@/shared/api";
 import { sharedKeys } from "@/shared/api/query-keys";
@@ -13,6 +13,9 @@ import radioOff from "../assets/radio-off.svg";
 import radioOn from "../assets/radio-on.svg";
 import { ctaClass } from "../labels";
 import type { Questionnaire } from "../types";
+
+/** 선택지를 고른 뒤 다음 문항으로 넘어가기까지 (고른 표시가 보이도록) */
+const ADVANCE_DELAY_MS = 350;
 
 /** 진단 문항 (PROFILE-01). 마지막 문항에서 "결과 보기"를 누르면 제출(PROFILE-02)하고 결과로 가요 */
 export function DiagnosisQuizScreen() {
@@ -67,19 +70,36 @@ function Quiz({ questionnaire }: { questionnaire: Questionnaire }) {
         answers: questions.map((item) => ({ questionId: item.id, optionId: answers[item.id]! })),
       }),
     onSuccess: (res) => {
-      // 마이페이지 등에서 쓰는 최신 성향을 새 결과로 바로 바꿔요
+      // 최신 성향을 새 결과로 바로 바꿔요
       queryClient.setQueryData(sharedKeys.latestProfile, res.data);
+      // 홈 응답에도 성향이 들어 있어서("진단 해 보세요" 띠) 홈만 다시 받게 해요.
+      // 다른 기능의 키는 import 할 수 없어 queryKey 규칙([기능이름, ...])의 앞부분으로 지정해요
+      void queryClient.invalidateQueries({ queryKey: ["home"] });
       router.replace("/diagnosis/result");
     },
   });
 
+  /** 고른 뒤 다음 문항으로 넘어가기 전 타이머. 넘어가는 중에는 다른 선택지를 눌러도 무시해요 */
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelAdvance = () => {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    advanceTimer.current = null;
+  };
+  useEffect(() => cancelAdvance, []);
+
   const choose = (optionId: string) => {
+    if (advanceTimer.current) return;
     setAnswers({ ...answers, [question.id]: optionId });
-    // 마지막 문항 전까지는 고르면 바로 다음 문항으로 넘어가요
-    if (!isLast) setIndex(index + 1);
+    if (isLast) return;
+    // 마지막 문항 전까지는 고른 선택지를 잠깐 보여준 뒤 다음 문항으로 넘어가요
+    advanceTimer.current = setTimeout(() => {
+      advanceTimer.current = null;
+      setIndex((current) => current + 1);
+    }, ADVANCE_DELAY_MS);
   };
 
   const goPrevious = () => {
+    cancelAdvance();
     setIndex(index - 1);
     submit.reset();
   };
