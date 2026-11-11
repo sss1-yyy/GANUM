@@ -4,7 +4,6 @@ import Link from "next/link";
 import { isApiError } from "@/shared/api";
 import { remainingRuns } from "@/shared/api/endpoints";
 import { useMenuOverview } from "../hooks/use-menu-overview";
-import { TopBar } from "@/components/layout/TopBar";
 
 interface MenuItem {
   label: string;
@@ -25,8 +24,8 @@ export function MenuScreen() {
     {
       title: "내 금융 정보",
       items: [
-        { label: "재정 정보 관리", href: "/mypage/finance" },
-        { label: "금융 목표 관리", href: "/mypage/goal" },
+        { label: "재정 정보 관리" },
+        { label: "금융 목표 관리" },
         { label: "금융 성향 진단 · 다시 진단", href: "/diagnosis", value: profileLabel },
       ],
     },
@@ -34,7 +33,7 @@ export function MenuScreen() {
       title: "투자와 분석",
       items: [
         { label: "모의투자", href: "/invest" },
-        { label: "투자 기록", href: "/mypage/orders" },
+        { label: "투자 기록" },
         { label: "내 레포트", href: "/report" },
         { label: "시뮬레이션", href: "/simulation" },
         { label: "관심 종목" },
@@ -43,8 +42,8 @@ export function MenuScreen() {
     {
       title: "이용 관리",
       items: [
-        { label: "이용권 · 구독", href: "/mypage/usage", value: planLabel },
-        { label: "남은 이용 횟수", href: "/mypage/usage", value: remainingLabel },
+        { label: "이용권 · 구독", value: planLabel },
+        { label: "남은 이용 횟수", value: remainingLabel },
         { label: "이용 내역" },
       ],
     },
@@ -60,27 +59,27 @@ export function MenuScreen() {
   ];
 
   return (
-    <div className="bg-surface min-h-dvh">
-      <TopBar />
-      <main className="flex flex-col gap-6 px-8 pt-2.5 pb-10">
-        <h1 className="text-title text-text-strong font-semibold">전체</h1>
-        <MenuUserCard overview={overview} planLabel={planLabel} />
-        <nav aria-label="전체 메뉴" className="flex flex-col gap-6">
-          {sections.map((section, index) => (
-            <MenuSection
-              key={section.title}
-              title={section.title}
-              items={section.items}
-              headingId={`menu-section-${index}`}
-            />
-          ))}
-        </nav>
-        <div className="text-caption text-text-sub flex items-center justify-center gap-4 py-2">
-          <span>로그아웃</span>
-          <span>탈퇴하기</span>
-        </div>
-      </main>
-    </div>
+    <>
+      <h1 className="text-title text-text-strong font-semibold">전체</h1>
+
+      <MenuUserCard overview={overview} planLabel={planLabel} />
+
+      <nav aria-label="전체 메뉴" className="flex flex-col gap-6">
+        {sections.map((section, index) => (
+          <MenuSection
+            key={section.title}
+            title={section.title}
+            items={section.items}
+            headingId={`menu-section-${index}`}
+          />
+        ))}
+      </nav>
+
+      <div className="text-caption text-text-sub flex items-center justify-center gap-4 py-2">
+        <span>로그아웃</span>
+        <span>탈퇴하기</span>
+      </div>
+    </>
   );
 }
 
@@ -255,10 +254,15 @@ function MenuSection({
             ) : (
               <div
                 aria-disabled="true"
-                className="flex min-h-[52px] items-center justify-between gap-3 py-3.5"
+                className="flex min-h-[52px] items-center justify-between gap-2 py-3.5"
               >
                 <span className="text-text min-w-0 text-sm font-medium">{item.label}</span>
-                <ChevronRight />
+                <span className="flex min-w-0 shrink-0 items-center gap-2">
+                  {item.value && (
+                    <span className="text-caption text-primary text-right">{item.value}</span>
+                  )}
+                  <ChevronRight />
+                </span>
               </div>
             )}
           </li>

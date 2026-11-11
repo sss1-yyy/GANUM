@@ -1,13 +1,12 @@
+import { ScreenFrame } from "@/components/layout/ScreenFrame";
 import { MenuScreen } from "./MenuScreen";
-import { MenuBottomNav } from "./MenuBottomNav";
 
 export function MenuPage() {
   return (
-    <div className="bg-surface relative flex h-dvh flex-col overflow-hidden">
-      {/* 전체 메뉴 콘텐츠 */}
-      <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
+    <div className="bg-surface relative h-dvh">
+      <ScreenFrame tabBar className="gap-6">
         <MenuScreen />
-      </div>
+      </ScreenFrame>
 
       {/* AI 챗봇 버튼 - 공통 기능 연결 전 */}
       <div className="absolute right-5 bottom-[80px] z-10">
@@ -20,9 +19,6 @@ export function MenuPage() {
           AI
         </button>
       </div>
-
-      {/* Figma 원본 SVG 하단바 */}
-      <MenuBottomNav />
     </div>
   );
 }
