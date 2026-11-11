@@ -13,7 +13,8 @@ export const getBenefits = (query?: BenefitsQuery) =>
   apiGet<ListData<Benefit>>("/benefits", { query });
 
 // BENEFIT-02 · 혜택 상세·신청기관
-export const getBenefit = (benefitId: string) => apiGet<BenefitDetail>(`/benefits/${benefitId}`);
+export const getBenefit = (benefitId: string) =>
+  apiGet<BenefitDetail>(`/benefits/${encodeURIComponent(benefitId)}`);
 
 export const benefitKeys = {
   list: (query?: object) => ["benefits", "list", query ?? {}] as const,
