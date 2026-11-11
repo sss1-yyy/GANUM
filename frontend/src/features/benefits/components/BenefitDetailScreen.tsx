@@ -201,7 +201,7 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
 
   if (query.isPending) {
     return (
-      <ScreenFrame>
+      <ScreenFrame tabBar>
         <p role="status">혜택을 불러오고 있어요.</p>
       </ScreenFrame>
     );
@@ -210,7 +210,7 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
   if (!query.data) {
     const missing = isApiError(query.error) && query.error.status === 404;
     return (
-      <ScreenFrame className="gap-3">
+      <ScreenFrame tabBar className="gap-3">
         <p role="alert" className="text-danger">
           {missing ? "혜택을 찾을 수 없어요." : "혜택을 불러오지 못했어요."}
         </p>
@@ -238,12 +238,9 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
   const term = /(?:^|·\s*)가입 기간\s+([^·]+)/.exec(detail.supportDescription)?.[1].trim();
   const hasMonthlyTerm = isSavings && summary.startsWith("월 ") && Boolean(term);
   const directUrl = applicationHref(detail.applicationUrl);
-  const hasInstitutionLink = detail.institutions.some(({ applicationUrl }) =>
-    Boolean(applicationHref(applicationUrl)),
-  );
 
   return (
-    <ScreenFrame className="gap-4">
+    <ScreenFrame tabBar className="gap-4">
       <h1 className="text-title text-text-strong font-bold">{detail.benefit.title}</h1>
       <div className="bg-sub rounded-card p-4">
         <p className="text-caption text-text-sub">
@@ -345,19 +342,18 @@ export function BenefitDetailScreen({ benefitId }: { benefitId: string }) {
                     {institution.name}
                   </a>
                 ) : (
-                  <div className="px-2 py-4">
-                    <p className="text-text-strong text-sm font-semibold">{institution.name}</p>
-                    <p className="text-caption text-text-sub mt-1">링크 미제공</p>
-                  </div>
+                  <p className="text-text-strong px-2 py-4 text-sm font-semibold">
+                    {institution.name}
+                  </p>
                 )}
               </li>
             );
           })}
         </ul>
         <p className="text-caption text-text-sub mt-4">
-          {hasInstitutionLink
-            ? "신청 링크가 있는 기관을 선택하면 신청 페이지로 이동해요."
-            : "등록된 신청 링크가 없어요."}
+          {isSavings
+            ? "선택하면 해당 은행 앱으로 이동해요. 앱이 없으면 설치 화면으로 이동해요."
+            : "기관을 선택하면 신청 페이지로 이동해요."}
         </p>
       </dialog>
     </ScreenFrame>

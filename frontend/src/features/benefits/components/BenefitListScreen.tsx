@@ -111,7 +111,7 @@ export function BenefitListScreen() {
   const visible = benefits.filter(({ benefit }) => matchesFilter(benefit, filter));
 
   return (
-    <ScreenFrame className="gap-4">
+    <ScreenFrame tabBar className="gap-4">
       <h1 className="text-title text-text-strong font-bold">청년 혜택</h1>
 
       {query.isPending ? (
