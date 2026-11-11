@@ -67,9 +67,8 @@ function Quiz({ questionnaire }: { questionnaire: Questionnaire }) {
         answers: questions.map((item) => ({ questionId: item.id, optionId: answers[item.id]! })),
       }),
     onSuccess: (res) => {
+      // 마이페이지 등에서 쓰는 최신 성향을 새 결과로 바로 바꿔요
       queryClient.setQueryData(sharedKeys.latestProfile, res.data);
-      // 홈의 "진단해 보세요" 띠 등 성향을 쓰는 화면이 새 결과를 다시 받도록 해요
-      void queryClient.invalidateQueries();
       router.replace("/diagnosis/result");
     },
   });
