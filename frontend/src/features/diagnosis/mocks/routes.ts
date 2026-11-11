@@ -4,8 +4,8 @@ import { nextMockId } from "@/mocks/store";
 import { profileState } from "@/mocks/shared/user";
 import type { MockRoute } from "@/mocks/types";
 import type { InvestmentProfile } from "@/shared/types";
+import { MBTI_RESULTS } from "../results";
 import {
-  MBTI_COPY,
   MOCK_QUESTIONNAIRE_VERSION,
   MOCK_QUESTIONS,
   TYPE_LABEL,
@@ -58,15 +58,17 @@ export const diagnosisMockRoutes: MockRoute[] = [
       }
 
       // 4글자 유형(예: ESFJ) → 캐릭터(신중형·균형형·자유형·도전형)
-      const copy = MBTI_COPY[typeCode(sums)];
+      const mbti = typeCode(sums);
+      const result = MBTI_RESULTS[mbti];
       const profile: InvestmentProfile = {
         id: nextMockId("profile"),
         questionnaireVersion: MOCK_QUESTIONNAIRE_VERSION,
-        type: copy.type,
-        typeLabel: TYPE_LABEL[copy.type],
-        description: copy.description,
-        guides: copy.guides,
+        type: result.type,
+        typeLabel: TYPE_LABEL[result.type],
+        description: `${result.summary}이에요.`,
+        guides: [result.assetTip, result.riskFactor, result.considerations],
         createdAt: MOCK_NOW,
+        mbti,
       };
       profileState().latest = profile;
       return created(profile);

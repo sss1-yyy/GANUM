@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { MBTI_COPY, MOCK_QUESTIONS, optionScore, typeCode } from "./questionnaire";
+import { MBTI_RESULTS, codesOfType } from "../results";
+import { MOCK_QUESTIONS, optionScore, typeCode } from "./questionnaire";
 
 /** 문항마다 같은 순번(0~3)의 선택지를 골랐을 때 4글자 유형 */
 function codeWhenAllPick(optionIndex: number) {
@@ -19,9 +20,16 @@ describe("진단 채점 (정기회의6 기준)", () => {
 
   it("모두 첫 번째를 고르면 ISTJ(신중형), 모두 마지막이면 ENFP(도전형)", () => {
     expect(codeWhenAllPick(0)).toBe("ISTJ");
-    expect(MBTI_COPY.ISTJ.type).toBe("CAUTIOUS");
+    expect(MBTI_RESULTS.ISTJ.type).toBe("CAUTIOUS");
     expect(codeWhenAllPick(3)).toBe("ENFP");
-    expect(MBTI_COPY.ENFP.type).toBe("BOLD");
+    expect(MBTI_RESULTS.ENFP.type).toBe("BOLD");
+  });
+
+  it("16유형이 캐릭터마다 4개씩 (정기회의6 묶음)", () => {
+    expect(codesOfType("CAUTIOUS")).toEqual(["ISTJ", "ISTP", "INTJ", "INTP"]);
+    expect(codesOfType("BALANCED")).toEqual(["ISFJ", "INFJ", "ESTJ", "ENTJ"]);
+    expect(codesOfType("FREE")).toEqual(["ISFP", "INFP", "ESTP", "ENTP"]);
+    expect(codesOfType("BOLD")).toEqual(["ESFJ", "ESFP", "ENFJ", "ENFP"]);
   });
 
   it("축 합이 0 이면 앞 글자(I·S·T·J)", () => {
