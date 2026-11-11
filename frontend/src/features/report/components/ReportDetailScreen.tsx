@@ -43,7 +43,7 @@ export function ReportDetailScreen({ reportId }: { reportId: string }) {
   const report = query.data;
 
   return (
-    <ScreenFrame className="gap-2.5">
+    <ScreenFrame tabBar className="gap-2.5">
       <h1 className="text-title text-text-strong font-semibold">내 레포트</h1>
       {query.isError ? (
         <StatusMessage
