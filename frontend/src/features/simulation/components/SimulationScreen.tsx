@@ -138,6 +138,7 @@ export function SimulationScreen() {
 
   return (
     <ScreenFrame
+      tabBar
       className="gap-4"
       // 결과 화면: 이전 결과로, 첫 결과면 입력 화면으로 (결과는 남겨 둬요). 입력 화면은 이전 페이지로
       onBack={
