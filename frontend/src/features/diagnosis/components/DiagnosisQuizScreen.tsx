@@ -11,7 +11,7 @@ import { cn } from "@/shared/lib/cn";
 import { diagnosisKeys, getQuestionnaire, submitProfile } from "../api";
 import radioOff from "../assets/radio-off.svg";
 import radioOn from "../assets/radio-on.svg";
-import { ctaClass } from "../labels";
+import { BOTTOM_CTA_SLOT, ctaClass } from "../labels";
 import type { Questionnaire } from "../types";
 
 /** 선택지를 고른 뒤 다음 문항으로 넘어가기까지 (고른 표시가 보이도록) */
@@ -175,7 +175,7 @@ function Quiz({ questionnaire }: { questionnaire: Questionnaire }) {
       </div>
 
       {isLast && (
-        <div className="mt-auto flex shrink-0 flex-col gap-2 pt-6">
+        <div className={cn(BOTTOM_CTA_SLOT, "gap-2")}>
           {submit.error && (
             <p role="alert" className="text-caption text-danger text-center">
               {isApiError(submit.error) ? submit.error.message : "결과를 받지 못했어요."}
