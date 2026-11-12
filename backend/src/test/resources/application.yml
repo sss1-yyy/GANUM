@@ -1,0 +1,42 @@
+# 테스트는 Docker 없이 인메모리 H2(MySQL 호환 모드)로 실행합니다.
+spring:
+  datasource:
+    url: jdbc:h2:mem:ganum;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  docker:
+    compose:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+ganum:
+  cors:
+    allowed-origins: http://localhost:3000
+  auth:
+    demo-login-id: demo
+  usage:
+    costs:
+      CHAT: 1
+      REPORT: 3
+      SIMULATION: 2
+  # 테스트는 외부 API 를 부르지 않습니다
+  market:
+    data-go-kr-service-key: ""
+    sync-on-startup: false
+  crypto:
+    upbit-enabled: false
+  ai:
+    api-key: ""
+    model: gemini-2.5-flash
+    timeout-seconds: 5
+  notification:
+    price-change-percent: 3.0
+    concentration-percent: 40.0
+    benefit-deadline-days: 7

@@ -1,0 +1,15 @@
+{
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.import.gradle.wrapper.enabled": true,
+  "java.jdt.ls.java.home": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.13.9-hotspot",
+  "java.test.config": {
+    "name": "backend-tests",
+    "vmArgs": ["-Dfile.encoding=UTF-8"]
+  },
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java",
+    "editor.formatOnSave": false
+  },
+  "rest-client.timeoutinmilliseconds": 60000,
+  "files.encoding": "utf8"
+}
