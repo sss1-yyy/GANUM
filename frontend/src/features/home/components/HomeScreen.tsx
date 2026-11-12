@@ -27,14 +27,14 @@ export function HomeScreen() {
 
   if (home.isPending) {
     return (
-      <ScreenFrame hideBack>
+      <ScreenFrame hideBack tabBar>
         <p className="text-caption text-text-sub py-20 text-center">불러오는 중…</p>
       </ScreenFrame>
     );
   }
   if (home.isError) {
     return (
-      <ScreenFrame hideBack className="items-center gap-3 py-20">
+      <ScreenFrame hideBack tabBar className="items-center gap-3 py-20">
         <p role="alert" className="text-caption text-danger">
           홈 정보를 불러오지 못했어요.
         </p>
@@ -53,7 +53,7 @@ export function HomeScreen() {
   const today = referenceDate(meta?.asOf);
 
   return (
-    <ScreenFrame hideBack className="pt-0">
+    <ScreenFrame hideBack tabBar className="pt-0">
       {data.investmentProfile === null && (
         <Link
           href="/diagnosis"
