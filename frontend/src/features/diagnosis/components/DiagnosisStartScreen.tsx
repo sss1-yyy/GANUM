@@ -9,7 +9,7 @@ const CHIPS = ["8문항", "약 1분", "정답 없음"];
 /** 투자 성향 진단 시작. 네 가지 성향을 소개하고 문항으로 넘어가요 */
 export function DiagnosisStartScreen() {
   return (
-    <ScreenFrame>
+    <ScreenFrame tabBar>
       <h1 className="text-title text-text-strong mt-[34px] leading-8 font-bold">
         나와 닮은 <span className="text-primary">투자 캐릭터</span>는?
       </h1>

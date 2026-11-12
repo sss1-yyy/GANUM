@@ -30,14 +30,14 @@ export function DiagnosisResultScreen() {
 
   if (profile.isPending) {
     return (
-      <ScreenFrame>
+      <ScreenFrame tabBar>
         <p className="text-caption text-text-sub py-20 text-center">불러오는 중…</p>
       </ScreenFrame>
     );
   }
   if (profile.isError) {
     return (
-      <ScreenFrame className="items-center gap-3 py-20">
+      <ScreenFrame tabBar className="items-center gap-3 py-20">
         <p role="alert" className="text-caption text-danger">
           결과를 불러오지 못했어요.
         </p>
@@ -53,7 +53,7 @@ export function DiagnosisResultScreen() {
   }
   if (profile.data === null) {
     return (
-      <ScreenFrame className="items-center gap-4 py-20">
+      <ScreenFrame tabBar className="items-center gap-4 py-20">
         <p className="text-subtitle text-text-sub">아직 진단한 결과가 없어요.</p>
         <Link href="/diagnosis" className={ctaClass()}>
           진단하러 가기
