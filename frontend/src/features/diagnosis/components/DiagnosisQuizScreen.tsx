@@ -26,14 +26,14 @@ export function DiagnosisQuizScreen() {
 
   if (questionnaire.isPending) {
     return (
-      <ScreenFrame>
+      <ScreenFrame tabBar>
         <p className="text-caption text-text-sub py-20 text-center">불러오는 중…</p>
       </ScreenFrame>
     );
   }
   if (questionnaire.isError) {
     return (
-      <ScreenFrame className="items-center gap-3 py-20">
+      <ScreenFrame tabBar className="items-center gap-3 py-20">
         <p role="alert" className="text-caption text-danger">
           문항을 불러오지 못했어요.
         </p>
@@ -106,6 +106,7 @@ function Quiz({ questionnaire }: { questionnaire: Questionnaire }) {
 
   return (
     <ScreenFrame
+      tabBar
       // 상단 뒤로 가기: 첫 문항이 아니면 이전 문항으로
       onBack={index > 0 ? goPrevious : undefined}
     >
