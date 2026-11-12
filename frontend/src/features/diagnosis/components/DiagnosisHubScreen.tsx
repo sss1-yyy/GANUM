@@ -86,7 +86,7 @@ export function DiagnosisHubScreen() {
         <Link
           href="/invest"
           // 버튼 색: Figma 진한 남색(#191f28) — 이 버튼에만 쓰여 토큰에 없음
-          className="text-subtitle flex h-[42px] w-[162px] items-center justify-center rounded-[16px] bg-[#191f28] leading-[26px] font-bold text-white"
+          className="text-subtitle text-surface flex h-[42px] w-[162px] items-center justify-center rounded-[16px] bg-[#191f28] leading-[26px] font-bold"
         >
           모의투자 하러 가기
         </Link>
@@ -123,7 +123,7 @@ function DiagnoseCard() {
       </ul>
       <Link
         href="/diagnosis"
-        className="bg-primary text-subtitle flex h-[42px] w-[140px] items-center justify-center rounded-[16px] leading-[26px] font-bold text-white"
+        className="bg-primary text-subtitle text-surface flex h-[42px] w-[140px] items-center justify-center rounded-[16px] leading-[26px] font-bold"
       >
         진단하러 가기
       </Link>
@@ -249,12 +249,10 @@ function Ranking() {
               </li>
             ))}
           </ol>
-          <Link
-            href="/market"
-            className="text-caption text-text-muted mt-3 py-2 text-center leading-6 font-medium"
-          >
+          {/* 랭킹 화면(/market, #41)이 아직 비어 있어서 그 전까지는 글자만 보여줘요. #41 이 들어오면 Link 로 바꿔요 */}
+          <p className="text-caption text-text-muted mt-3 py-2 text-center leading-6 font-medium">
             더보기
-          </Link>
+          </p>
         </>
       )}
     </section>
