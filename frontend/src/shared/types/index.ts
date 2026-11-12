@@ -61,6 +61,8 @@ export interface InvestmentProfile {
   description: string;
   guides: string[];
   createdAt: string;
+  /** [명세 외] 4글자 유형(예: "ESFJ"). 결과 화면이 유형별 목데이터를 고를 때 써요 */
+  mbti?: string;
 }
 
 // BENEFIT-01
