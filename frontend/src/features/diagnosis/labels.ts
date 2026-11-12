@@ -59,6 +59,13 @@ export const TYPE_VIEW: Record<
   },
 };
 
+/**
+ * 화면 맨 아래 큰 버튼을 감싸는 자리 (Figma 진단 시작 250:345 · 문항 211:4961).
+ * 남는 공간만큼 아래로 내려가되 위 내용과는 최소 34px 띄우고(짧은 화면에서 붙지 않게),
+ * ScreenFrame 아래 여백 40px 을 24px 줄여 탭바 위 16px 에 놓아요.
+ */
+export const BOTTOM_CTA_SLOT = "mt-auto -mb-6 flex shrink-0 flex-col pt-[34px]";
+
 /** 화면 맨 아래 큰 버튼 모양 (primary: 보라, secondary: 연보라). Link·button 모두에 써요 */
 export function ctaClass(variant: "primary" | "secondary" = "primary"): string {
   return cn(

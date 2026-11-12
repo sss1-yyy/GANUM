@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ScreenFrame } from "@/components/layout/ScreenFrame";
 import { cn } from "@/shared/lib/cn";
-import { TYPE_ORDER, TYPE_VIEW, ctaClass } from "../labels";
+import { BOTTOM_CTA_SLOT, TYPE_ORDER, TYPE_VIEW, ctaClass } from "../labels";
 
 const CHIPS = ["8문항", "약 1분", "정답 없음"];
 
@@ -54,9 +54,11 @@ export function DiagnosisStartScreen() {
         })}
       </ul>
 
-      <Link href="/diagnosis/quiz" className={cn(ctaClass(), "mt-auto")}>
-        시작하기
-      </Link>
+      <div className={BOTTOM_CTA_SLOT}>
+        <Link href="/diagnosis/quiz" className={ctaClass()}>
+          시작하기
+        </Link>
+      </div>
     </ScreenFrame>
   );
 }
