@@ -23,9 +23,10 @@ const TABS: Tab[] = [
   { label: "내 자산", href: "/assets", icon: assetsIcon, paths: ["/assets"] },
   {
     label: "투자",
-    href: "/invest",
+    // Figma: 투자 탭 첫 화면은 성향 진단 홈이고, 모의투자 메인(/invest)은 그 화면의 "모의투자 하러 가기"로 가요
+    href: "/diagnosis/home",
     icon: investIcon,
-    paths: ["/invest", "/portfolio", "/report", "/simulation"],
+    paths: ["/invest", "/portfolio", "/report", "/simulation", "/diagnosis"],
   },
   { label: "혜택", href: "/benefits", icon: benefitsIcon, paths: ["/benefits"] },
   { label: "전체", href: "/menu", icon: menuIcon, paths: ["/menu"] },
