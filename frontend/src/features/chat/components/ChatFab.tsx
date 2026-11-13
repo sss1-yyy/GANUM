@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { onOpenChatRequest } from "@/shared/lib/chat-open";
 import { cn } from "@/shared/lib/cn";
 import type { ChatContextType } from "@/shared/types";
 import { ChatSheet } from "./ChatSheet";
@@ -20,6 +21,10 @@ export function ChatFab({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
+
+  // 다른 기능 폴더(예: 종목 상세 "쉽게 설명 듣기")에서 requestOpenChat() 으로도 열 수 있어요
+  useEffect(() => onOpenChatRequest(() => setOpen(true)), []);
+
   return (
     <>
       <button

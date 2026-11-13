@@ -10,6 +10,7 @@ import {
   getPaperPortfolio,
 } from "@/shared/api/endpoints";
 import { sharedKeys } from "@/shared/api/query-keys";
+import { requestOpenChat } from "@/shared/lib/chat-open";
 import { cn } from "@/shared/lib/cn";
 import {
   changeTone,
@@ -228,9 +229,10 @@ export function InstrumentDetailScreen({ instrumentId }: { instrumentId: string 
           <br />
           전체 자산의 10% 이하로 시작해 보세요.
         </p>
-        {/* TODO(챗봇): AI 금융 코치 시트를 만들면 여기서 열어요 (contextType: INSTRUMENT) */}
+        {/* GlobalChatFab 이 경로를 보고 INSTRUMENT 컨텍스트로 열어요 */}
         <button
           type="button"
+          onClick={requestOpenChat}
           className="bg-surface text-primary mt-3 w-full rounded-full py-2.5 text-[15px] font-semibold"
         >
           쉽게 설명 듣기
