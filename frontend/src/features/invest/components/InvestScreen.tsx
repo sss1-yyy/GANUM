@@ -8,8 +8,9 @@ import { ScreenFrame } from "@/components/layout/ScreenFrame";
 import { getGoal, getInstruments, getPaperPortfolio } from "@/shared/api/endpoints";
 import { sharedKeys } from "@/shared/api/query-keys";
 import { cn } from "@/shared/lib/cn";
-import { changeTone, formatKRW, formatSignedPercent } from "@/shared/lib/format";
+import { formatKRW, formatSignedPercent } from "@/shared/lib/format";
 import type { PaperAllocation } from "@/shared/types";
+import { toneClass } from "../lib/tone";
 
 /** 메인에 보여줄 종목 수. 전체 목록은 랭킹 화면(/market)에서 봐요 */
 const RANKING_LIMIT = 5;
@@ -37,14 +38,6 @@ const ALLOCATION_LABELS: Record<string, string> = {
   DEPOSIT: "예금",
   SAVING: "적금",
 };
-
-/** 상승 빨강 · 하락 파랑 · 보합 회색 */
-function toneClass(value: number | null | undefined): string {
-  const tone = changeTone(value);
-  if (tone === "up") return "text-positive";
-  if (tone === "down") return "text-negative";
-  return "text-text-muted";
-}
 
 /** 모의투자 메인 (PAPER-01 + GOAL-01 + MARKET-01) */
 export function InvestScreen() {
