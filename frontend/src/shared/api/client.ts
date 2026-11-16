@@ -1,4 +1,4 @@
-import { API_BASE_URL, USE_MOCK } from "./config";
+import { API_BASE_URL, USE_MOCK, isMockOnlyPath } from "./config";
 import { ApiError } from "./error";
 import { toApiResponse } from "./response";
 import { getAccessToken, notifyUnauthorized } from "./token";
@@ -32,8 +32,8 @@ export async function apiRequest<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<ApiResponse<T>> {
-  if (USE_MOCK) {
-    // 목 모드일 때만 목 서버 코드가 불려옵니다. (운영 빌드에는 포함되지 않음)
+  if (USE_MOCK || isMockOnlyPath(path)) {
+    // 목 모드이거나, 실서버 모드여도 목데이터 범위 경로(config.ts 의 MOCK_ONLY_PATH_PREFIXES)면 목으로 처리해요.
     const { handleMockRequest } = await import("@/mocks/server");
     const result = await handleMockRequest({
       method,
