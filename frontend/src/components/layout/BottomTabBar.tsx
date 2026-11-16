@@ -45,6 +45,8 @@ export function BottomTabBar() {
   return (
     <nav
       aria-label="하단 메뉴"
+      // AI 버튼(ChatFab)이 이 표시를 보고 탭바 위로 올라가요
+      data-chat-fab-above="tab-bar"
       className="bg-surface flex shrink-0 items-start justify-between px-8 pt-[9px] pb-[23px]"
     >
       {TABS.map((tab) => {

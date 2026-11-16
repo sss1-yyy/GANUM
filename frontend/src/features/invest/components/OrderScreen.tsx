@@ -286,7 +286,8 @@ export function OrderScreen({ instrumentId, side }: { instrumentId: string; side
         </dl>
       </section>
 
-      <div className="mt-auto pt-2">
+      {/* AI 버튼(ChatFab)이 이 표시를 보고 주문 버튼 위로 올라가요 */}
+      <div data-chat-fab-above="order-cta" className="mt-auto pt-2">
         <button
           type="button"
           disabled={!canSubmit}
