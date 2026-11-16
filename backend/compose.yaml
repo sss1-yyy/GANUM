@@ -1,0 +1,19 @@
+# 로컬 개발용 MySQL. `./gradlew bootRun` 하면 Spring Boot 가 자동으로 띄우고 연결합니다.
+# 직접 띄우려면: docker compose up -d   (DB 클라이언트 접속: localhost:3306 / ganum / ganum)
+services:
+  mysql:
+    image: 'mysql:8.4'
+    environment:
+      - 'MYSQL_DATABASE=ganum'
+      - 'MYSQL_USER=ganum'
+      - 'MYSQL_PASSWORD=ganum'
+      - 'MYSQL_ROOT_PASSWORD=ganum-root'
+      - 'TZ=Asia/Seoul'
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    ports:
+      - '3306:3306'
+    volumes:
+      - 'ganum-mysql:/var/lib/mysql'
+
+volumes:
+  ganum-mysql:

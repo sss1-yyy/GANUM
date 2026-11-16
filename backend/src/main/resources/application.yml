@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: ganum-backend
+  config:
+    # backend/.env 의 비밀값(API 키)을 읽어옵니다. 파일이 없어도 됩니다. 형식은 .env.example 참고
+    import: optional:file:.env[.properties]
+  docker:
+    compose:
+      lifecycle-management: start-only # 앱을 꺼도 DB 컨테이너는 유지
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  jackson:
+    time-zone: Asia/Seoul
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+ganum:
+  cors:
+    allowed-origins: http://localhost:3000
+  auth:
+    # 로그인은 목데이터 범위라 모든 요청을 이 데모 사용자로 처리합니다.
+    demo-login-id: demo
+  usage:
+    # 서비스 토큰 차감 단가. 명세상 미정이라 프론트 목데이터와 같은 예시 값입니다.
+    costs:
+      CHAT: 1
+      REPORT: 3
+      SIMULATION: 2
+  market:
+    # 공공데이터포털 "금융위원회_주식시세정보"·"증권상품시세정보" 일반 인증키(Decoding). 비우면 시드 시세 사용
+    data-go-kr-service-key: ${DATA_GO_KR_SERVICE_KEY:}
+    sync-on-startup: true
+  crypto:
+    # 업비트 공개 시세 API (키 불필요). false 면 시드 가격 사용
+    upbit-enabled: true
+  ai:
+    # Google AI Studio 에서 발급한 Gemini API 키. 비우면 AI 대신 규칙 기반 예시 문장으로 동작
+    api-key: ${GEMINI_API_KEY:}
+    model: ${GEMINI_MODEL:gemini-2.5-flash}
+    timeout-seconds: 30
+  notification:
+    # 알림 발생 조건 (명세상 팀 확정 필요 → 예시 값)
+    price-change-percent: 3.0
+    concentration-percent: 40.0
+    benefit-deadline-days: 7

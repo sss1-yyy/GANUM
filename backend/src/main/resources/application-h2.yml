@@ -1,0 +1,17 @@
+# Docker 없이 빠르게 실행: ./gradlew bootRun --args='--spring.profiles.active=h2'
+# 데이터는 메모리에만 있어서 서버를 끄면 사라지고, 켤 때마다 시드가 다시 들어갑니다.
+# DB 확인: http://localhost:8080/h2-console (JDBC URL: jdbc:h2:mem:ganum, user: sa)
+spring:
+  datasource:
+    url: jdbc:h2:mem:ganum;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  docker:
+    compose:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  h2:
+    console:
+      enabled: true
