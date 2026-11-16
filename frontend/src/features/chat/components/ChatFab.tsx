@@ -45,6 +45,8 @@ export function ChatFab({
             "[body:has([data-chat-fab-above=order-cta])_&]:bottom-[108px]", // 모의 매수/매도 버튼 위 16px
             // 주문 화면에 탭바가 붙으면(Figma 참고) 두 높이를 합쳐요
             "[body:has([data-chat-fab-above=tab-bar]):has([data-chat-fab-above=order-cta])_&]:bottom-[187px]",
+            // 경로는 같지만 Figma 에 AI 버튼이 없는 화면(주문 완료 등)은 data-chat-fab-hidden 표시로 숨어요
+            "[body:has([data-chat-fab-hidden])_&]:hidden",
             className,
           )}
         >
