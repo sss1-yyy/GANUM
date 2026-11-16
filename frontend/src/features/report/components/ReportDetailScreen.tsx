@@ -279,12 +279,15 @@ function AdviceTimeline({ advice }: { advice: ReportAdvice[] }) {
   );
 }
 
-/** Figma "분야별 맞춤 조언"의 칩 + 카드 모양에 allocation(자산 배분 예시)을 담아요. */
+/**
+ * Figma "분야별 맞춤 조언"의 칩 + 카드 모양에 allocation 을 담아요.
+ * allocation 은 추천 배분이 아니라 서버가 실제 자산으로 계산한 현재 비중이에요(AI 는 설명 문장만 써요).
+ */
 function AllocationSection({ allocation }: { allocation: ReportAllocation[] }) {
   const [selected, setSelected] = useState(0);
   const current = allocation[selected] ?? allocation[0];
   return (
-    <Section title="[예시] 이렇게 나눠 볼 수 있어요">
+    <Section title="지금 내 자산은 이렇게 나뉘어 있어요">
       <div role="tablist" className="no-scrollbar -mx-8 flex gap-2 overflow-x-auto px-8 py-2">
         {allocation.map((item, index) => (
           <button
