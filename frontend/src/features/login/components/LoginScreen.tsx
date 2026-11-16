@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import ganumLogo from "@/components/layout/assets/ganum-logo.png";
 import { startKakaoLogin } from "../api";
 import characterBalanced from "../assets/character-balanced.svg";
@@ -14,20 +13,12 @@ import kakao from "../assets/kakao.svg";
 /** 로그인 화면. 카카오로 시작하면 홈으로 가요 */
 export function LoginScreen() {
   const router = useRouter();
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const login = async () => {
-    setPending(true);
-    setError(null);
-    try {
-      await startKakaoLogin();
-      // 로그인 화면으로 다시 돌아오지 않도록 기록을 바꿔요
-      router.replace("/home");
-    } catch {
-      setError("지금은 로그인할 수 없어요. 잠시 후 다시 시도해 주세요.");
-      setPending(false);
-    }
+  const login = () => {
+    // 로그인은 API 연결 없이 누구나 바로 넘어가요 (login/api.ts 참고)
+    startKakaoLogin();
+    // 로그인 화면으로 다시 돌아오지 않도록 기록을 바꿔요
+    router.replace("/home");
   };
 
   return (
@@ -62,17 +53,11 @@ export function LoginScreen() {
       </div>
 
       <div className="mt-auto flex flex-col gap-2">
-        {error && (
-          <p role="alert" className="text-caption text-danger text-center">
-            {error}
-          </p>
-        )}
         {/* 카카오 버튼 색(노랑·갈색)은 카카오 로그인 버튼 고유 색이라 직접 써요 (AGENTS.md 색 규칙 예외) */}
         <button
           type="button"
           onClick={login}
-          disabled={pending}
-          className="rounded-button flex h-[60px] w-full items-center justify-center gap-3 bg-[#ffe812] disabled:opacity-60"
+          className="rounded-button flex h-[60px] w-full items-center justify-center gap-3 bg-[#ffe812]"
         >
           <Image src={kakao} alt="" />
           {/* globals.css 의 button { font: inherit } 가 유틸리티보다 우선이라 글자 스타일은 span 에 줘요 */}

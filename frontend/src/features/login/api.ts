@@ -1,15 +1,10 @@
-import { USE_MOCK, setAccessToken } from "@/shared/api";
+import { setAccessToken } from "@/shared/api";
 
 /**
- * 카카오 로그인 시작.
- * ⚠ API 명세서 v0.2 에는 로그인 API 가 없습니다(로그인 제공자·토큰 발급 정책 미정).
- *   그래서 지금은 목 모드에서만 "로그인된 것처럼" 토큰을 넣고, 실서버 모드에서는 안내만 합니다.
- *   로그인 방식이 정해지면 이 함수만 바꾸면 됩니다.
+ * 카카오로 시작하기.
+ * 로그인은 목데이터 범위라 실제 로그인 API 에 연결하지 않아요(팀 결정). 목 모드든 실서버 모드든
+ * 누가 언제 눌러도 바로 넘어가요. 백엔드도 토큰과 상관없이 데모 사용자로 처리해요(DemoUserResolver).
  */
-export async function startKakaoLogin(): Promise<void> {
-  if (USE_MOCK) {
-    setAccessToken("mock-access-token");
-    return;
-  }
-  throw new Error("LOGIN_NOT_READY");
+export function startKakaoLogin(): void {
+  setAccessToken("mock-access-token");
 }
