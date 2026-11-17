@@ -16,6 +16,7 @@ export const MOCK_ONLY_PATH_PREFIXES = [
   "/paper", // 모의투자 (PAPER-01/03/04) — 목데이터 범위
   "/me/goal", // 목표 (모의투자 메인 목표 카드)
   "/investment-profiles", // 투자 성향 진단
+  "/benefits", // 청년 혜택 (BENEFIT-01/02) — 목데이터 범위
 ];
 
 /** 이 경로는 실서버 대신 목데이터로 처리해야 하는지 */
