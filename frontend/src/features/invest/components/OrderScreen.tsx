@@ -127,8 +127,10 @@ export function OrderScreen({ instrumentId, side }: { instrumentId: string; side
   if (result) {
     return (
       <ScreenFrame hideBack className="items-center gap-0 pt-20">
+        {/* Figma 주문 완료 화면에는 AI 버튼이 없어요 — ChatFab 이 이 표시를 보고 숨어요 */}
         <span
           aria-hidden
+          data-chat-fab-hidden
           className="shadow-ai from-coach to-primary flex size-24 items-center justify-center rounded-full bg-gradient-to-br"
         >
           <svg
