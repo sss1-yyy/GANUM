@@ -15,6 +15,7 @@ import { getAssetSummary } from "@/mocks/shared/assets";
 import { profileState } from "@/mocks/shared/user";
 import { mockState, nextMockId } from "@/mocks/store";
 import type { MockRoute } from "@/mocks/types";
+import type { AssetCategoryType } from "@/shared/types";
 import type { Report, ReportKind, ReportListItem } from "../types";
 
 interface StoredReport {
@@ -25,6 +26,16 @@ interface StoredReport {
 }
 const store = () => mockState<{ reports: StoredReport[] }>("reports", () => ({ reports: seed() }));
 
+/** 분류별 설명 문장. 실서버 규칙 기반 문장(TemplateReportWriter)과 같은 내용이에요. */
+const ALLOCATION_REASONS: Record<AssetCategoryType, string> = {
+  CASH: "바로 쓸 수 있는 돈이에요. 생활비와 비상 상황에 대비하는 역할을 해요.",
+  DEPOSIT: "원금이 비교적 안정적이지만 중도 해지 시 이자가 줄 수 있어요.",
+  STOCK: "시세에 따라 가치가 오르내리는 투자자산이에요.",
+  ETF: "시세에 따라 가치가 오르내리는 투자자산이에요.",
+  CRYPTO: "가격 변동이 매우 큰 자산이에요.",
+  OTHER: "기타 자산이에요.",
+};
+
 function financialBody(createdAt: string): Omit<Report, "id" | "kind" | "status" | "createdAt"> {
   return {
     summary: {
@@ -34,15 +45,12 @@ function financialBody(createdAt: string): Omit<Report, "id" | "kind" | "status"
       monthlyExpense: 1_700_000,
       monthlySurplus: 600_000,
     },
-    allocation: [
-      { category: "CASH", weightPercent: 40, reason: "급할 때 쓸 비상금을 먼저 채워요 (예시)" },
-      { category: "DEPOSIT", weightPercent: 45, reason: "정기 적금으로 목돈을 만들어요 (예시)" },
-      {
-        category: "STOCK",
-        weightPercent: 15,
-        reason: "성향에 맞는 범위에서 소액으로 시작해요 (예시)",
-      },
-    ],
+    // 실서버처럼 현재 자산 비중(내 자산 목데이터)에 분류별 설명 문장을 붙여요.
+    allocation: getAssetSummary().categories.map((c) => ({
+      category: c.type,
+      weightPercent: c.weightPercent,
+      reason: ALLOCATION_REASONS[c.type],
+    })),
     risks: ["비상금이 생활비 3개월치보다 적어요.", "카드 할부 잔액의 이자 부담을 확인해 보세요."],
     priceChangeReasons: [],
     advice: [
@@ -65,7 +73,7 @@ function financialBody(createdAt: string): Omit<Report, "id" | "kind" | "status"
     sources: [{ title: "사용자 입력 재정정보", url: null, asOf: createdAt }],
     limitations: [
       "입력하신 재정 정보와 샘플 데이터 기준의 예시예요.",
-      "자산 배분은 설명용 가상 예시이며 개인별 검토가 필요해요.",
+      "자산 비중은 현재 보유 자산 기준이며 개인별 검토가 필요해요.",
     ],
     errorCode: null,
   };

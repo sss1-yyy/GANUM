@@ -16,6 +16,7 @@ export const MOCK_ONLY_PATH_PREFIXES = [
   "/paper", // 모의투자 (PAPER-01/03/04) — 목데이터 범위
   "/me/goal", // 목표 (모의투자 메인 목표 카드)
   "/investment-profiles", // 투자 성향 진단
+  "/simulations", // 시뮬레이션 (SIM-01/03) — 목데이터 범위
   "/benefits", // 청년 혜택 (BENEFIT-01/02) — 목데이터 범위
 ];
 

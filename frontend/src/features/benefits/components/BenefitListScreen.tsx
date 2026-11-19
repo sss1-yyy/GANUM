@@ -91,9 +91,9 @@ export function BenefitListScreen() {
   const [filter, setFilter] = useState<Filter>("전체");
   const { data: me } = useQuery({
     queryKey: sharedKeys.me,
-    queryFn: getMe,
+    queryFn: async () => (await getMe()).data,
   });
-  const nickname = me?.data.nickname.trim();
+  const nickname = me?.nickname.trim();
   const query = useInfiniteQuery({
     queryKey: benefitKeys.list(),
     initialPageParam: null as string | null,
