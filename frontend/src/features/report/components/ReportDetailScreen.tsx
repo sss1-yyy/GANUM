@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
-import { isApiError, POLL_INTERVAL_MS, USE_MOCK } from "@/shared/api";
+import { isApiError, POLL_INTERVAL_MS } from "@/shared/api";
 import { cn } from "@/shared/lib/cn";
 import {
   changeTone,
@@ -110,7 +110,6 @@ function ReportBody({ report }: { report: Report }) {
       <div className="flex flex-col gap-4">
         {report.summary && (
           <Card className="gap-3">
-            {USE_MOCK && <p className="text-caption text-text-sub font-medium">[예시]</p>}
             {"totalValue" in report.summary ? (
               <PaperFigures summary={report.summary} />
             ) : (
@@ -121,7 +120,7 @@ function ReportBody({ report }: { report: Report }) {
 
         {report.advice.length > 0 && <AdviceTimeline advice={report.advice} />}
         {report.allocation.length > 0 && <AllocationSection allocation={report.allocation} />}
-        {report.risks.length > 0 && <BulletSection title="살펴볼 점" items={report.risks} />}
+        {/* risks("살펴볼 점")는 Figma 에 없어서 보여주지 않아요 (docs/figma-api-gaps.md) */}
         {report.priceChangeReasons.length > 0 && (
           <BulletSection title="가격이 움직인 이유" items={report.priceChangeReasons} />
         )}
@@ -129,14 +128,12 @@ function ReportBody({ report }: { report: Report }) {
       </div>
 
       <div className="flex flex-col gap-6">
+        {/* Figma 는 안내 1줄이라 limitations 는 보여주지 않아요. 모의투자 레포트는 금융 규칙 문구를 더해요 */}
         <div className="text-caption text-text-sub flex flex-col gap-1 pt-[38px] pb-6 text-center leading-[18px] font-light">
-          {report.limitations.map((text) => (
-            <p key={text}>{text}</p>
-          ))}
-          {isPaper && <p>과거 결과이며 앞으로를 보장하지 않아요.</p>}
           <p>
-            레포트는 입력하신 정보를 바탕으로 한 참고용 안내예요. 특정 상품 가입을 권유하지 않아요.
+            조언서는 입력하신 정보를 바탕으로 한 참고용 안내예요. 특정 상품 가입을 권유하지 않아요.
           </p>
+          {isPaper && <p>과거 결과이며 앞으로를 보장하지 않아요.</p>}
         </div>
         {/* TODO(B 챗봇 시트): contextType "REPORT", contextId = report.id 로 챗봇 시트 열기 연결 */}
         <button type="button" className="rounded-button bg-primary h-[60px] w-full">
@@ -262,14 +259,10 @@ function AdviceTimeline({ advice }: { advice: ReportAdvice[] }) {
                 <p className="text-subtitle text-text-strong leading-[22px] font-semibold">
                   {item.title}
                 </p>
+                {/* considerations(회색 보조 문장)는 Figma 에 없어서 보여주지 않아요 */}
                 <p className="text-caption text-text-sub leading-[18px] font-medium">
                   {item.description}
                 </p>
-                {item.considerations.map((text) => (
-                  <p key={text} className="text-caption text-text-muted leading-[18px] font-medium">
-                    · {text}
-                  </p>
-                ))}
               </Card>
             </li>
           );
@@ -279,12 +272,15 @@ function AdviceTimeline({ advice }: { advice: ReportAdvice[] }) {
   );
 }
 
-/** Figma "분야별 맞춤 조언"의 칩 + 카드 모양에 allocation(자산 배분 예시)을 담아요. */
+/**
+ * Figma "분야별 맞춤 조언"의 칩 + 카드 모양에 allocation 을 담아요.
+ * allocation 은 추천 배분이 아니라 서버가 실제 자산으로 계산한 현재 비중이에요(AI 는 설명 문장만 써요).
+ */
 function AllocationSection({ allocation }: { allocation: ReportAllocation[] }) {
   const [selected, setSelected] = useState(0);
   const current = allocation[selected] ?? allocation[0];
   return (
-    <Section title="[예시] 이렇게 나눠 볼 수 있어요">
+    <Section title="지금 내 자산은 이렇게 나뉘어 있어요">
       <div role="tablist" className="no-scrollbar -mx-8 flex gap-2 overflow-x-auto px-8 py-2">
         {allocation.map((item, index) => (
           <button
