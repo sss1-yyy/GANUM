@@ -18,6 +18,7 @@ export const MOCK_ONLY_PATH_PREFIXES = [
   "/investment-profiles", // 투자 성향 진단
   "/simulations", // 시뮬레이션 (SIM-01/03) — 목데이터 범위
   "/benefits", // 청년 혜택 (BENEFIT-01/02) — 목데이터 범위
+  "/home", // 홈 대시보드 (HOME-01) — 목데이터 범위
 ];
 
 /** 이 경로는 실서버 대신 목데이터로 처리해야 하는지 */
